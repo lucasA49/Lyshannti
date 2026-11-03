@@ -196,6 +196,55 @@
   background: rgb(33 19 37 / 0.6);
 }
 
+/* Contenu de l'éditeur d'articles (admin) : aperçu fidèle au rendu du site. */
+.article-editor > * + * {
+  margin-top: 1rem;
+}
+.article-editor p {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: color-mix(in oklch, var(--color-plum) 85%, transparent);
+}
+.article-editor h2 {
+  margin-top: 2.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--color-plum);
+  border-left: 3px solid var(--color-gold);
+  padding-left: 0.75rem;
+}
+.article-editor h3 {
+  margin-top: 1.75rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-plum);
+}
+.article-editor ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+.article-editor ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+.article-editor blockquote:not(figure) {
+  border-left: 2px solid var(--color-gold);
+  padding-left: 1.25rem;
+  font-style: italic;
+}
+.article-editor a {
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-underline-offset: 4px;
+}
+.article-editor hr {
+  margin: 2.5rem auto;
+  width: 8rem;
+  border-color: var(--color-gold);
+}
+
 /* Pas de défilement de la page derrière un menu ouvert. */
 html:has(.mobile-nav[open], .admin-drawer[open]) {
   overflow: hidden;

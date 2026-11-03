@@ -113,10 +113,10 @@ export function RecentPosts({ posts }: { posts: DashboardData["recentPosts"] }) 
       id="recent-posts"
       title="Mes articles"
       action={
-        <span aria-disabled="true" title="Bientôt disponible" className="inline-flex cursor-not-allowed items-center gap-1.5 text-sm font-medium text-plum/50">
+        <Link href="/admin/articles/nouveau" className="inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-plum underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">
           <PenLine aria-hidden="true" className="size-4" />
           Écrire un article
-        </span>
+        </Link>
       }
     >
       {posts.length === 0 ? (

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
+import Link from "next/link"
 import { Info, Menu, PanelLeftClose, PanelLeftOpen, Plus, X } from "lucide-react"
 import { cn } from "cn"
 
@@ -80,15 +81,14 @@ function AdminShell({
           </button>
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
-            <span
-              aria-disabled="true"
-              title="L'éditeur d'articles arrive bientôt"
-              className="inline-flex h-10 cursor-not-allowed items-center gap-2 rounded-full bg-gold/50 px-3 text-sm font-semibold text-plum/70 sm:px-4"
+            <Link
+              href="/admin/articles/nouveau"
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-gold px-3 text-sm font-semibold text-plum shadow-sm outline-none hover:bg-gold/85 focus-visible:ring-3 focus-visible:ring-ring/50 sm:px-4"
             >
               <Plus className="size-4" aria-hidden="true" />
               <span className="hidden sm:inline">Nouvel article</span>
-              <span className="sr-only"> (bientôt disponible)</span>
-            </span>
+              <span className="sr-only sm:hidden">Nouvel article</span>
+            </Link>
             <AccountMenu name={admin.name} email={admin.email} />
           </div>
         </header>
