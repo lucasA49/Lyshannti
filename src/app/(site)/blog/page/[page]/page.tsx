@@ -10,6 +10,10 @@ type Props = { params: Promise<{ page: string }> };
 
 // Pages 2, 3… générées au build, puis à la demande quand le blog grandit ;
 // revalidées à chaque publication depuis l'admin (revalidatePath).
+// Régénérée au plus toutes les 5 minutes : les articles programmés y apparaissent
+// sans republication (et immédiatement après chaque action dans l'admin).
+export const revalidate = 300;
+
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

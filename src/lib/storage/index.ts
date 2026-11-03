@@ -11,27 +11,28 @@ import path from "node:path"
 /** Clés acceptées : noms générés par le serveur uniquement (jamais ceux envoyés). */
 export const STORAGE_KEY_PATTERN = /^[a-z0-9-]{10,80}\.webp$/
 
-const root = path.resolve(process.env.STORAGE_DIR ?? "./storage/uploads")
+// turbopackIgnore : dossier choisi à l'exécution, à ne pas embarquer dans le build.
+const root = path.resolve(/* turbopackIgnore: true */ process.env.STORAGE_DIR ?? "./storage/uploads")
 
 function filePath(key: string) {
   if (!STORAGE_KEY_PATTERN.test(key)) throw new Error("Clé de stockage invalide.")
-  return path.join(root, key)
+  return path.join(/* turbopackIgnore: true */ root, key)
 }
 
 export const storage = {
   async put(key: string, data: Buffer) {
-    await mkdir(root, { recursive: true })
-    await writeFile(filePath(key), data, { flag: "wx" })
+    await mkdir(/* turbopackIgnore: true */ root, { recursive: true })
+    await writeFile(/* turbopackIgnore: true */ filePath(key), data, { flag: "wx" })
   },
   async get(key: string) {
     try {
-      return await readFile(filePath(key))
+      return await readFile(/* turbopackIgnore: true */ filePath(key))
     } catch {
       return null
     }
   },
   async delete(key: string) {
-    await rm(filePath(key), { force: true })
+    await rm(/* turbopackIgnore: true */ filePath(key), { force: true })
   },
   url(key: string) {
     return `/media/${key}`

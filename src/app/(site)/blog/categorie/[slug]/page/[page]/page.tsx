@@ -8,6 +8,10 @@ import { getCategories, getCategory, getPosts } from "@/lib/blog";
 
 type Props = { params: Promise<{ slug: string; page: string }> };
 
+// Régénérée au plus toutes les 5 minutes : les articles programmés y apparaissent
+// sans republication (et immédiatement après chaque action dans l'admin).
+export const revalidate = 300;
+
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

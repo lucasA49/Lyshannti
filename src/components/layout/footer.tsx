@@ -9,24 +9,26 @@ import {
 import { Container } from "@/components/layout/container"
 import { NavLinks } from "@/components/layout/nav-links"
 import { siteConfig } from "@/config/site"
-
-const socialLinks = [
-  { label: "Instagram", href: siteConfig.socials.instagram, Icon: InstagramIcon },
-  { label: "Facebook", href: siteConfig.socials.facebook, Icon: FacebookIcon },
-  { label: "LinkedIn", href: siteConfig.socials.linkedin, Icon: LinkedinIcon },
-].filter((social) => social.href)
+import { getPublicSettings } from "@/lib/site-settings"
 
 const linkClass =
   "rounded-sm text-blush/80 outline-none transition-colors hover:text-gold focus-visible:ring-3 focus-visible:ring-ring/60"
 
-function Footer() {
+async function Footer() {
+  const settings = await getPublicSettings()
+  const socialLinks = [
+    { label: "Instagram", href: settings.instagram, Icon: InstagramIcon },
+    { label: "Facebook", href: settings.facebook, Icon: FacebookIcon },
+    { label: "LinkedIn", href: settings.linkedin, Icon: LinkedinIcon },
+  ].filter((social) => social.href)
+
   return (
     <footer className="on-dark border-t border-gold/40 bg-plum text-blush">
       <Container className="flex flex-col items-center gap-8 py-10 text-center lg:flex-row lg:justify-between lg:text-left">
         <div>
           <Logo />
           <p className="mt-1 text-sm text-blush/70 lg:pl-[3.4rem]">
-            {siteConfig.tagline}
+            {settings.tagline}
           </p>
         </div>
 

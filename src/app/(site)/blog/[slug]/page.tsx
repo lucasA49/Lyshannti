@@ -10,7 +10,7 @@ import { ShareButtons } from "@/components/blog/share-buttons";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
-import { ImagePlaceholder } from "@/components/ui/image-placeholder";
+import { CoverImage } from "@/components/blog/cover-image";
 import { siteConfig } from "@/config/site";
 import { blogListHref } from "@/lib/blog-urls"
 import { getCategoriesWithCount, getLatestPosts, getPostBySlug, getPostSlugs } from "@/lib/blog";
@@ -21,6 +21,10 @@ type Props = { params: Promise<{ slug: string }> };
 
 // Articles générés au build ; un article publié ensuite est rendu à sa première
 // visite, et chaque modification dans l'admin régénère la page (revalidatePath).
+// Régénérée au plus toutes les 5 minutes : les articles programmés y apparaissent
+// sans republication (et immédiatement après chaque action dans l'admin).
+export const revalidate = 300;
+
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -74,7 +78,7 @@ export default async function BlogPostPage({ params }: Props) {
           keywords: post.tags.map((tag) => tag.name).join(", "),
           inLanguage: "fr-FR",
           mainEntityOfPage: url,
-          image: `${siteConfig.url}${ogImage.url}`,
+          image: `${siteConfig.url}${post.coverUrl ?? ogImage.url}`,
           author: { "@type": "Organization", name: siteConfig.name, url: `${siteConfig.url}/` },
           publisher: { "@id": `${siteConfig.url}/#organization` },
         }}
@@ -118,7 +122,7 @@ export default async function BlogPostPage({ params }: Props) {
             </header>
 
             <div className="mt-6 overflow-hidden rounded-3xl border border-gold/25 shadow-md shadow-plum/10">
-              <ImagePlaceholder label={post.coverAlt} className="aspect-16/9 sm:aspect-2/1" />
+              <CoverImage url={post.coverUrl} alt={post.coverAlt} sizes="(min-width: 1024px) 48rem, 100vw" priority className="aspect-16/9 sm:aspect-2/1" />
             </div>
 
             <p className="mt-6 text-lg leading-relaxed font-medium text-plum">{frenchTypo(post.excerpt)}</p>

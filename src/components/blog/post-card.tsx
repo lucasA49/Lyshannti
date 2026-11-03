@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { CalendarDays, Clock } from "lucide-react"
 
-import { ImagePlaceholder } from "@/components/ui/image-placeholder"
+import { CoverImage } from "@/components/blog/cover-image"
 import { postHref } from "@/lib/blog-urls"
 import type { PostSummary } from "@/lib/blog-types"
 import { formatPostDate, frenchTypo } from "@/lib/format"
@@ -17,7 +17,7 @@ function PostCard({
     // Toute la carte est cliquable grâce au lien étiré (after:absolute) du titre.
     <article className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-gold/25 bg-white/70 shadow-lg shadow-plum/5 transition-shadow focus-within:ring-3 focus-within:ring-ring/60 hover:shadow-xl hover:shadow-plum/10">
       <div className="relative">
-        <ImagePlaceholder label={post.coverAlt} className="aspect-16/9" />
+        <CoverImage url={post.coverUrl} alt={post.coverAlt} sizes="(min-width: 1024px) 24rem, (min-width: 640px) 50vw, 100vw" className="aspect-16/9" />
         <span className="absolute bottom-3 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-plum shadow-sm">
           {post.category.name}
         </span>

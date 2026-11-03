@@ -4,6 +4,10 @@ import { siteConfig } from "@/config/site";
 import { blogListHref } from "@/lib/blog-urls"
 import { getCategories, getPostBySlug, getPosts, getPostSlugs } from "@/lib/blog";
 
+// Régénérée au plus toutes les 5 minutes : les articles programmés y apparaissent
+// sans republication (et immédiatement après chaque action dans l'admin).
+export const revalidate = 300;
+
 export const dynamic = "force-static";
 
 // Pages publiques fixes.

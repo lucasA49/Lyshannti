@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useTransition } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { EditorContent, useEditor } from "@tiptap/react"
-import { ArrowLeft, Clock, Eye, PenLine, Save, Send } from "lucide-react"
+import { ArrowLeft, Clock, ExternalLink, Eye, PenLine, Save, Send } from "lucide-react"
 import { cn } from "cn"
 
-import { NotConnectedNotice } from "@/components/admin/auth-fields"
+import { MediaPicker } from "@/components/admin/editor/media-picker"
 import { articleExtensions } from "@/components/admin/editor/extensions"
 import { EditorToolbar } from "@/components/admin/editor/editor-toolbar"
 import {
@@ -16,6 +17,8 @@ import {
   type ArticleMeta,
 } from "@/components/admin/editor/editor-sidebar"
 import { RichText } from "@/components/blog/rich-text"
+import { saveArticle, type SaveArticleResult } from "@/lib/admin/actions/save-article"
+import type { ArticleFormData, PickerMedia, PublishMode } from "@/lib/admin/article-types"
 import { seoChecks } from "@/lib/admin/seo-checklist"
 import { frenchTypo } from "@/lib/format"
 import { readingMinutes, richTextToPlain, type RichTextDoc, type RichTextNode } from "@/lib/rich-text"
@@ -42,31 +45,56 @@ function analyse(doc: RichTextDoc): ContentStats {
   return { doc, text: richTextToPlain(doc), imagesWithoutAlt, internalLinks }
 }
 
-// Éditeur d'article : titre, chapô, contenu en blocs (Tiptap) et réglages.
-// L'écriture, la mise en page et l'aperçu fonctionnent ; l'enregistrement et la
-// publication seront branchés avec le backend (Server Actions + Zod + session).
-function ArticleEditor({ categories }: { categories: { slug: string; name: string }[] }) {
-  const [title, setTitle] = useState("")
-  const [excerpt, setExcerpt] = useState("")
+type PickerTarget = "cover" | "image" | "mediaText" | null
+
+// Éditeur d'article (création et modification) : titre, chapô, contenu en
+// blocs (Tiptap), images de la bibliothèque, publication et réglages SEO.
+// L'enregistrement passe par une action serveur (session, Zod, base).
+function ArticleEditor({
+  categories,
+  media,
+  initial,
+}: {
+  categories: { slug: string; name: string }[]
+  media: PickerMedia[]
+  initial?: ArticleFormData
+}) {
+  const router = useRouter()
+  const initialContent = initial?.content ?? emptyDoc
+  const [title, setTitle] = useState(initial?.title ?? "")
+  const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "")
   const [meta, setMeta] = useState<ArticleMeta>({
-    publishMode: "draft",
-    scheduledAt: "",
-    category: "",
-    tags: "",
-    coverAlt: "",
-    slug: "",
-    slugEdited: false,
-    metaTitle: "",
-    metaDescription: "",
-    focusKeyword: "",
+    publishMode: initial?.publishMode ?? "draft",
+    scheduledAt: initial?.scheduledAt ?? "",
+    category: initial?.categorySlug ?? "",
+    tags: initial?.tags.join(", ") ?? "",
+    coverId: initial?.coverId ?? null,
+    coverUrl: media.find((item) => item.id === initial?.coverId)?.url ?? null,
+    coverAlt: initial?.coverAlt ?? "",
+    slug: initial?.slug ?? "",
+    slugEdited: Boolean(initial),
+    metaTitle: initial?.metaTitle ?? "",
+    metaDescription: initial?.metaDescription ?? "",
+    focusKeyword: initial?.focusKeyword ?? "",
   })
-  const [stats, setStats] = useState<ContentStats>(() => analyse(emptyDoc))
+  const [stats, setStats] = useState<ContentStats>(() => analyse(initialContent))
   const [preview, setPreview] = useState(false)
-  const [notice, setNotice] = useState(false)
+  const [result, setResult] = useState<SaveArticleResult | null>(null)
+  const [dirty, setDirty] = useState(false)
+  const [picker, setPicker] = useState<PickerTarget>(null)
+  const [saving, startSaving] = useTransition()
+
+  // Prévient avant de quitter la page avec des modifications non enregistrées.
+  useEffect(() => {
+    if (!dirty) return
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
+    window.addEventListener("beforeunload", warn)
+    return () => window.removeEventListener("beforeunload", warn)
+  }, [dirty])
 
   const editor = useEditor({
     extensions: articleExtensions,
-    content: emptyDoc,
+    content: initialContent,
     immediatelyRender: false,
     editorProps: {
       attributes: {
@@ -74,13 +102,20 @@ function ArticleEditor({ categories }: { categories: { slug: string; name: strin
         "aria-label": "Contenu de l'article",
       },
     },
-    onUpdate: ({ editor: e }) => setStats(analyse(e.getJSON() as RichTextDoc)),
+    onUpdate: ({ editor: e }) => {
+      setStats(analyse(e.getJSON() as RichTextDoc))
+      setDirty(true)
+    },
   })
 
-  const updateMeta = (patch: Partial<ArticleMeta>) => setMeta((current) => ({ ...current, ...patch }))
+  const updateMeta = (patch: Partial<ArticleMeta>) => {
+    setMeta((current) => ({ ...current, ...patch }))
+    setDirty(true)
+  }
 
   const onTitleChange = (value: string) => {
     setTitle(value)
+    setDirty(true)
     // L'adresse suit le titre tant qu'elle n'a pas été modifiée à la main.
     if (!meta.slugEdited) updateMeta({ slug: slugify(value) })
   }
@@ -103,6 +138,47 @@ function ArticleEditor({ categories }: { categories: { slug: string; name: strin
     content: [{ type: "paragraph", content: [{ type: "text", text: excerpt }] }, ...stats.doc.content],
   })
 
+  const onPick = (item: PickerMedia) => {
+    const attrs = { src: item.url, alt: item.alt, width: item.width, height: item.height }
+    if (picker === "cover") updateMeta({ coverId: item.id, coverUrl: item.url, coverAlt: item.alt })
+    else if (picker === "image") editor?.chain().focus().insertImageBlock(attrs).run()
+    else if (picker === "mediaText") editor?.chain().focus().insertMediaText(attrs).run()
+    setPicker(null)
+  }
+
+  const save = (mode: PublishMode) => {
+    if (!editor) return
+    const data: ArticleFormData = {
+      id: initial?.id,
+      title,
+      excerpt,
+      // Copie JSON pure : les attributs de ProseMirror sont des objets sans
+      // prototype, mal transmis tels quels à une action serveur.
+      content: JSON.parse(JSON.stringify(editor.getJSON())) as RichTextDoc,
+      slug: meta.slug,
+      categorySlug: meta.category,
+      tags: meta.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+      coverId: meta.coverId,
+      coverAlt: meta.coverAlt,
+      publishMode: mode,
+      // Heure locale du navigateur → date absolue (ISO) pour le serveur.
+      scheduledAt: meta.scheduledAt ? new Date(meta.scheduledAt).toISOString() : "",
+      metaTitle: meta.metaTitle,
+      metaDescription: meta.metaDescription,
+      focusKeyword: meta.focusKeyword,
+    }
+    startSaving(async () => {
+      const response = await saveArticle(data)
+      setResult(response)
+      if (!response.ok) return
+      setDirty(false)
+      if (mode !== meta.publishMode) setMeta((current) => ({ ...current, publishMode: mode }))
+      if (!initial?.id) router.replace(`/admin/articles/${response.id}`)
+    })
+  }
+
+  const publicUrl = initial?.id && initial.publishMode === "now" && !dirty ? `/blog/${initial.slug}` : null
+
   const publishLabel =
     meta.publishMode === "now" ? "Publier" : meta.publishMode === "schedule" ? "Programmer" : "Enregistrer"
 
@@ -117,7 +193,9 @@ function ArticleEditor({ categories }: { categories: { slug: string; name: strin
             <ArrowLeft aria-hidden="true" className="size-4" />
             Tous les articles
           </Link>
-          <h1 className="mt-1 font-heading text-3xl font-semibold text-plum">Nouvel article</h1>
+          <h1 className="mt-1 font-heading text-3xl font-semibold text-plum">
+            {initial?.id ? "Modifier l'article" : "Nouvel article"}
+          </h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 text-sm text-plum/70">
@@ -133,10 +211,22 @@ function ArticleEditor({ categories }: { categories: { slug: string; name: strin
             {preview ? <PenLine aria-hidden="true" className="size-4" /> : <Eye aria-hidden="true" className="size-4" />}
             {preview ? "Revenir à l'édition" : "Aperçu"}
           </button>
+          {publicUrl && (
+            <a
+              href={publicUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-plum/25 bg-white px-4 text-sm font-medium text-plum outline-none hover:border-plum focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <ExternalLink aria-hidden="true" className="size-4" />
+              Voir sur le site
+            </a>
+          )}
           {meta.publishMode !== "draft" && (
             <button
               type="button"
-              onClick={() => setNotice(true)}
+              disabled={saving}
+              onClick={() => save("draft")}
               className="inline-flex h-10 items-center gap-2 rounded-full border border-plum/25 bg-white px-4 text-sm font-medium text-plum outline-none hover:border-plum focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <Save aria-hidden="true" className="size-4" />
@@ -145,22 +235,26 @@ function ArticleEditor({ categories }: { categories: { slug: string; name: strin
           )}
           <button
             type="button"
-            onClick={() => setNotice(true)}
+            disabled={saving}
+            onClick={() => save(meta.publishMode)}
             className="inline-flex h-10 items-center gap-2 rounded-full bg-gold px-5 text-sm font-semibold text-plum shadow-sm outline-none hover:bg-gold/85 focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             {meta.publishMode === "draft" ? <Save aria-hidden="true" className="size-4" /> : <Send aria-hidden="true" className="size-4" />}
-            {publishLabel}
+            {saving ? "Enregistrement…" : publishLabel}
           </button>
         </div>
       </div>
 
-      {notice && (
-        <div className="mt-4">
-          <NotConnectedNotice>
-            L&apos;enregistrement n&apos;est pas encore activé : il sera branché avec la base de données.
-            Ne fermez pas cette page si vous voulez garder votre texte.
-          </NotConnectedNotice>
-        </div>
+      {result && (
+        <p
+          role={result.ok ? "status" : "alert"}
+          className={cn(
+            "mt-4 rounded-xl px-4 py-3 text-sm text-plum",
+            result.ok ? "bg-gold/20" : "border border-destructive/30 bg-destructive/5"
+          )}
+        >
+          {result.message}
+        </p>
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
@@ -184,12 +278,15 @@ function ArticleEditor({ categories }: { categories: { slug: string; name: strin
             <textarea
               id="article-excerpt"
               value={excerpt}
-              onChange={(event) => setExcerpt(event.target.value)}
+              onChange={(event) => {
+                setExcerpt(event.target.value)
+                setDirty(true)
+              }}
               placeholder="Chapô : 2 ou 3 phrases d'introduction, affichées en tête de l'article et dans Google."
               rows={2}
               className="mt-3 w-full resize-none bg-transparent text-lg leading-relaxed font-medium text-plum outline-none [field-sizing:content] placeholder:text-plum/40"
             />
-            {editor && <EditorToolbar editor={editor} />}
+            {editor && <EditorToolbar editor={editor} onPickImage={setPicker} />}
             <EditorContent editor={editor} />
           </div>
 
@@ -207,10 +304,18 @@ function ArticleEditor({ categories }: { categories: { slug: string; name: strin
 
         <div className="space-y-6">
           <PublishPanel meta={meta} onChange={updateMeta} />
-          <OrganisationPanel meta={meta} categories={categories} onChange={updateMeta} />
+          <OrganisationPanel meta={meta} categories={categories} onChange={updateMeta} onPickCover={() => setPicker("cover")} />
           <SeoPanel meta={meta} title={title} excerpt={excerpt} checks={checks} onChange={updateMeta} />
         </div>
       </div>
+
+      <MediaPicker
+        open={picker !== null}
+        media={media}
+        title={picker === "cover" ? "Image principale" : "Choisir une image"}
+        onClose={() => setPicker(null)}
+        onSelect={onPick}
+      />
     </div>
   )
 }

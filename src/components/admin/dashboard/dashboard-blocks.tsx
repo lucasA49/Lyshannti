@@ -126,7 +126,11 @@ export function RecentPosts({ posts }: { posts: DashboardData["recentPosts"] }) 
           {posts.map((post) => (
             <li key={post.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-plum">{frenchTypo(post.title)}</p>
+                <p className="truncate font-medium text-plum">
+                  <Link href={`/admin/articles/${post.id}`} className="rounded-sm outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">
+                    {frenchTypo(post.title)}
+                  </Link>
+                </p>
                 <p className="text-xs text-plum/65">
                   Modifié le <time dateTime={post.updatedAt}>{formatDayMonthTime(post.updatedAt)}</time>
                 </p>

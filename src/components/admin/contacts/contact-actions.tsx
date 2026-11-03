@@ -1,19 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Trash2 } from "lucide-react"
 import { cn } from "cn"
 
-import { NotConnectedNotice } from "@/components/admin/auth-fields"
+import type { ActionResult } from "@/lib/admin/actions/articles"
+import { deleteContact, setContactStatus } from "@/lib/admin/actions/contacts"
 import { contactStatusLabels, type ContactStatus } from "@/lib/admin/labels"
 
 const statuses: ContactStatus[] = ["NEW", "IN_PROGRESS", "DONE"]
 
-// Changement de statut et suppression d'une demande.
-// TODO backend : Server Actions (session admin vérifiée, Zod) qui mettent à
-// jour / suppriment la demande en base puis rafraîchissent la page.
-function ContactActions({ status }: { status: ContactStatus }) {
-  const [notice, setNotice] = useState(false)
+// Changement de statut et suppression d'une demande (actions serveur).
+function ContactActions({ id, status }: { id: string; status: ContactStatus }) {
+  const [result, setResult] = useState<ActionResult | null>(null)
+  const [pending, startTransition] = useTransition()
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   return (
@@ -25,7 +25,8 @@ function ContactActions({ status }: { status: ContactStatus }) {
             <button
               key={value}
               type="button"
-              onClick={() => value !== status && setNotice(true)}
+              disabled={pending}
+              onClick={() => value !== status && startTransition(async () => setResult(await setContactStatus(id, value)))}
               aria-pressed={value === status}
               className={cn(
                 "h-10 rounded-full border px-4 text-sm font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -47,10 +48,13 @@ function ContactActions({ status }: { status: ContactStatus }) {
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  setConfirmDelete(false)
-                  setNotice(true)
-                }}
+                disabled={pending}
+                onClick={() =>
+                  startTransition(async () => {
+                    const response = await deleteContact(id)
+                    if (response) setResult(response)
+                  })
+                }
                 className="h-10 rounded-full bg-destructive px-4 text-sm font-semibold text-white outline-none hover:bg-destructive/90 focus-visible:ring-3 focus-visible:ring-destructive/40"
               >
                 Oui, supprimer
@@ -76,11 +80,10 @@ function ContactActions({ status }: { status: ContactStatus }) {
         )}
       </div>
 
-      {notice && (
-        <NotConnectedNotice>
-          Les modifications ne sont pas encore enregistrées : elles le seront une fois
-          l&apos;administration reliée à la base de données.
-        </NotConnectedNotice>
+      {result && (
+        <p role="status" className={cn("rounded-xl px-4 py-3 text-sm text-plum", result.ok ? "bg-gold/20" : "border border-destructive/30 bg-destructive/5")}>
+          {result.message}
+        </p>
       )}
     </div>
   )

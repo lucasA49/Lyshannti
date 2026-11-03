@@ -4,10 +4,11 @@ import { useState } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDown, Info, Lock, Send } from "lucide-react"
+import { AlertCircle, CheckCircle2, ChevronDown, Lock, Send } from "lucide-react"
 import { cn } from "cn"
 
 import { buttonVariants } from "@/components/ui/button-variants"
+import { submitContact, type ContactResult } from "@/lib/actions/contact"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -55,10 +56,12 @@ function Field({
 }
 
 function ContactForm({ className }: { className?: string }) {
-  const [submitted, setSubmitted] = useState(false)
+  const [result, setResult] = useState<ContactResult | null>(null)
+  const [honeypot, setHoneypot] = useState("")
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
@@ -73,10 +76,11 @@ function ContactForm({ className }: { className?: string }) {
     "aria-describedby": errors[name] ? `contact-${name}-error` : undefined,
   })
 
-  // TODO backend : envoyer les données à une Server Action (validation Zod
-  // côté serveur, enregistrement Prisma, notification Resend, anti-spam).
-  const onSubmit = () => {
-    setSubmitted(true)
+  // Envoi à une action serveur (validation, anti-spam, base, e-mail).
+  const onSubmit = async (values: ContactInput) => {
+    const response = await submitContact(values, honeypot)
+    setResult(response)
+    if (response.ok) reset()
   }
 
   return (
@@ -107,6 +111,19 @@ function ContactForm({ className }: { className?: string }) {
         onSubmit={handleSubmit(onSubmit)}
         className="mt-6 grid gap-5 sm:grid-cols-2"
       >
+        {/* Champ piège anti-robots : invisible, ignoré par les humains. */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+          <label htmlFor="contact-website">Site web</label>
+          <input
+            id="contact-website"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(event) => setHoneypot(event.target.value)}
+          />
+        </div>
+
         <Field id="contact-name" label="Nom" required error={errors.name?.message}>
           <Input
             {...register("name")}
@@ -193,18 +210,25 @@ function ContactForm({ className }: { className?: string }) {
             )}
           >
             <Send />
-            Envoyer ma demande
+            {isSubmitting ? "Envoi…" : "Envoyer ma demande"}
           </button>
 
-          {submitted && (
+          {result && (
             <p
-              role="status"
-              className="mt-4 flex items-start gap-2 rounded-xl bg-gold/25 px-4 py-3 text-sm text-plum"
+              role={result.ok ? "status" : "alert"}
+              className={cn(
+                "mt-4 flex items-start gap-2 rounded-xl px-4 py-3 text-sm text-plum",
+                result.ok ? "bg-gold/25" : "border border-destructive/30 bg-white"
+              )}
             >
-              <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-              Le formulaire est valide, mais l&apos;envoi des messages n&apos;est
-              pas encore activé. En attendant, écrivez-nous par email ou par
-              téléphone.
+              {result.ok ? (
+                <CheckCircle2 aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+              ) : (
+                <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
+              )}
+              {result.ok
+                ? "Merci, votre message a bien été envoyé. Nous vous répondons au plus vite."
+                : result.message}
             </p>
           )}
 

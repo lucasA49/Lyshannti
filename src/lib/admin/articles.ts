@@ -8,6 +8,7 @@
 
 import { demoPosts } from "@/content/admin.placeholder"
 import { categoriesPlaceholder } from "@/content/posts.placeholder"
+import type { ArticleFormData, PickerMedia } from "@/lib/admin/article-types"
 import type { PostStatus, SeoIssue } from "@/lib/admin/dashboard"
 import { getPostSlugs } from "@/lib/blog"
 
@@ -53,4 +54,16 @@ export async function getAdminCategories(): Promise<{ slug: string; name: string
   const database = await fromDatabase()
   if (database) return database.getAdminCategories()
   return categoriesPlaceholder.map(({ slug, name }) => ({ slug, name }))
+}
+
+/** Article à modifier (base de données uniquement). */
+export async function getArticleForEdit(id: string): Promise<ArticleFormData | undefined> {
+  const database = await fromDatabase()
+  return database ? database.getArticleForEdit(id) : undefined
+}
+
+/** Images proposées dans l'éditeur (vide sans base de données). */
+export async function getPickerMedia(): Promise<PickerMedia[]> {
+  const database = await fromDatabase()
+  return database ? database.getPickerMedia() : []
 }

@@ -2,6 +2,7 @@
 // demande par les modules src/lib/admin/*.ts quand DATABASE_URL existe.
 // TODO backend : chaque lecture passera après la vérification de la session admin.
 
+import type { ArticleFormData, PickerMedia } from "@/lib/admin/article-types"
 import type { AdminArticle } from "@/lib/admin/articles"
 import type { ContactRecord } from "@/lib/admin/contacts"
 import type { DashboardData, SeoIssue } from "@/lib/admin/dashboard"
@@ -153,7 +154,7 @@ export async function getAdminArticles(): Promise<AdminArticle[]> {
     views: row.viewCount,
     seoIssues: seoIssuesOf(row),
     publicUrl:
-      row.status === "PUBLISHED" && !row.deletedAt && row.publishedAt && row.publishedAt <= now
+      (row.status === "PUBLISHED" || row.status === "SCHEDULED") && !row.deletedAt && row.publishedAt && row.publishedAt <= now
         ? `/blog/${row.slug}`
         : undefined,
   }))
@@ -221,4 +222,50 @@ export async function getSiteSettings(): Promise<SiteSettings | undefined> {
     linkedin: row.linkedinUrl,
     notificationEmail: row.notificationEmail,
   }
+}
+
+/** Article à modifier dans l'éditeur (y compris brouillons et corbeille). */
+export async function getArticleForEdit(id: string): Promise<ArticleFormData | undefined> {
+  const row = await db.article.findUnique({
+    where: { id },
+    include: {
+      category: { select: { slug: true } },
+      cover: { select: { alt: true } },
+      tags: { select: { tag: { select: { name: true } } } },
+    },
+  })
+  if (!row) return undefined
+
+  // Date programmée au format du champ « datetime-local » (heure de Paris).
+  const scheduledAt =
+    row.status === "SCHEDULED" && row.publishedAt
+      ? new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Paris", dateStyle: "short", timeStyle: "short" })
+          .format(row.publishedAt)
+          .replace(" ", "T")
+      : ""
+
+  return {
+    id: row.id,
+    title: row.title,
+    excerpt: row.excerpt,
+    content: row.content as unknown as RichTextDoc,
+    slug: row.slug,
+    categorySlug: row.category.slug,
+    tags: row.tags.map(({ tag }) => tag.name),
+    coverId: row.coverId,
+    coverAlt: row.cover?.alt ?? "",
+    publishMode: row.status === "PUBLISHED" ? "now" : row.status === "SCHEDULED" ? "schedule" : "draft",
+    scheduledAt,
+    metaTitle: row.metaTitle ?? "",
+    metaDescription: row.metaDescription ?? "",
+    focusKeyword: row.focusKeyword ?? "",
+  }
+}
+
+/** Images de la bibliothèque pour le sélecteur de l'éditeur. */
+export async function getPickerMedia(): Promise<PickerMedia[]> {
+  return db.media.findMany({
+    orderBy: { createdAt: "desc" },
+    select: { id: true, url: true, alt: true, width: true, height: true, filename: true },
+  })
 }

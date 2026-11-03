@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Save } from "lucide-react"
 
-import { NotConnectedNotice } from "@/components/admin/auth-fields"
+import type { ActionResult } from "@/lib/admin/actions/articles"
+import { saveSettings } from "@/lib/admin/actions/settings"
 
 // Paramètres du site, modifiables par la cliente sans toucher au code.
-// Demain : table settings (une ligne), lue par les pages publiques (coordonnées,
-// réseaux, textes) ; chaque enregistrement régénère les pages concernées.
+// Table settings (une ligne), lue par les pages publiques (coordonnées,
+// réseaux) ; chaque enregistrement régénère le site.
 
 export type SiteSettings = {
   name: string
@@ -69,7 +70,8 @@ function Field({
 
 function SettingsForm({ initial }: { initial: SiteSettings }) {
   const [values, setValues] = useState(initial)
-  const [notice, setNotice] = useState(false)
+  const [result, setResult] = useState<ActionResult | null>(null)
+  const [pending, startTransition] = useTransition()
 
   const input = (key: keyof SiteSettings, props: React.ComponentProps<"input"> = {}) => (
     <input
@@ -85,7 +87,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
     <form
       onSubmit={(event) => {
         event.preventDefault()
-        setNotice(true)
+        startTransition(async () => setResult(await saveSettings(values)))
       }}
       className="space-y-6"
     >
@@ -145,16 +147,16 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
       </Section>
 
       <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-end gap-3 rounded-2xl border border-gold/30 bg-white/95 p-3 shadow-lg shadow-plum/10 backdrop-blur">
-        {notice && (
-          <div className="mr-auto">
-            <NotConnectedNotice>Les paramètres seront enregistrés une fois l&apos;administration reliée à la base de données.</NotConnectedNotice>
-          </div>
+        {result && (
+          <p role="status" className={`mr-auto rounded-xl px-4 py-2 text-sm text-plum ${result.ok ? "bg-gold/20" : "border border-destructive/30 bg-destructive/5"}`}>
+            {result.message}
+          </p>
         )}
         <button
           type="button"
           onClick={() => {
             setValues(initial)
-            setNotice(false)
+            setResult(null)
           }}
           className="h-10 rounded-full px-4 text-sm font-medium text-plum outline-none hover:bg-blush focus-visible:ring-3 focus-visible:ring-ring/50"
         >
@@ -162,6 +164,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
         </button>
         <button
           type="submit"
+          disabled={pending}
           className="inline-flex h-10 items-center gap-2 rounded-full bg-gold px-5 text-sm font-semibold text-plum outline-none hover:bg-gold/85 focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <Save aria-hidden="true" className="size-4" />

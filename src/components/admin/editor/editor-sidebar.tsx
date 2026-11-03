@@ -20,6 +20,8 @@ export type ArticleMeta = {
   scheduledAt: string
   category: string
   tags: string
+  coverId: string | null
+  coverUrl: string | null
   coverAlt: string
   slug: string
   slugEdited: boolean
@@ -107,10 +109,12 @@ export function OrganisationPanel({
   meta,
   categories,
   onChange,
+  onPickCover,
 }: {
   meta: ArticleMeta
   categories: { slug: string; name: string }[]
   onChange: (patch: Partial<ArticleMeta>) => void
+  onPickCover: () => void
 }) {
   return (
     <SidePanel id="panel-organisation" title="Organisation">
@@ -151,7 +155,30 @@ export function OrganisationPanel({
       <div>
         <p className={labelClass}>Image principale</p>
         <div className="overflow-hidden rounded-2xl">
-          <ImagePlaceholder label="La bibliothèque d'images arrive bientôt" className="aspect-16/9" />
+          {meta.coverUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={meta.coverUrl} alt={meta.coverAlt} className="aspect-16/9 w-full object-cover" />
+          ) : (
+            <ImagePlaceholder label="Aucune image principale" className="aspect-16/9" />
+          )}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onPickCover}
+            className="h-9 rounded-full border border-plum/25 px-3 text-sm font-medium text-plum outline-none hover:border-plum focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            {meta.coverUrl ? "Changer l'image" : "Choisir une image"}
+          </button>
+          {meta.coverUrl && (
+            <button
+              type="button"
+              onClick={() => onChange({ coverId: null, coverUrl: null, coverAlt: "" })}
+              className="h-9 rounded-full px-3 text-sm text-plum/75 outline-none hover:bg-blush focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              Retirer
+            </button>
+          )}
         </div>
         <label htmlFor="cover-alt" className={cn(labelClass, "mt-3")}>
           Texte alternatif (ALT)

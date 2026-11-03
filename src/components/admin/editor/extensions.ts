@@ -8,11 +8,13 @@ import { ImageNodeView, MediaTextNodeView } from "@/components/admin/editor/node
 // correspondre EXACTEMENT à ceux lus par RichText (src/lib/rich-text.ts) :
 // tout nouveau bloc s'ajoute aux deux endroits.
 
+type ImageAttrs = { src?: string; alt?: string; layout?: string; width?: number; height?: number }
+
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     articleBlocks: {
-      insertImageBlock: (attrs?: { src?: string; alt?: string; layout?: string }) => ReturnType
-      insertMediaText: () => ReturnType
+      insertImageBlock: (attrs?: ImageAttrs) => ReturnType
+      insertMediaText: (attrs?: ImageAttrs) => ReturnType
       insertPullQuote: () => ReturnType
       insertCallout: () => ReturnType
     }
@@ -102,9 +104,9 @@ const ArticleBlocks = Node.create({
         ({ commands }) =>
           commands.insertContent({ type: "image", attrs: { layout: "full", alt: "", ...attrs } }),
       insertMediaText:
-        () =>
+        (attrs = {}) =>
         ({ commands }) =>
-          commands.insertContent({ type: "mediaText", content: [paragraph("Votre texte à côté de l'image…")] }),
+          commands.insertContent({ type: "mediaText", attrs, content: [paragraph("Votre texte à côté de l'image…")] }),
       insertPullQuote:
         () =>
         ({ commands }) =>

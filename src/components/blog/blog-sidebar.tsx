@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { CalendarDays } from "lucide-react"
 
-import { ImagePlaceholder } from "@/components/ui/image-placeholder"
+import { CoverImage } from "@/components/blog/cover-image"
 import { SearchForm } from "@/components/blog/search-form"
 import { postHref } from "@/lib/blog-urls"
 import type { PostSummary } from "@/lib/blog-types"
@@ -46,7 +46,7 @@ function SidebarPostList({
         {posts.map((post) => (
           <li key={post.slug} className="group relative flex items-center gap-4 py-3 first:pt-0 last:pb-0">
             <div className="w-24 shrink-0 overflow-hidden rounded-xl">
-              <ImagePlaceholder label={post.coverAlt} className="aspect-4/3 [&_span]:hidden" />
+              <CoverImage url={post.coverUrl} alt="" sizes="6rem" className="aspect-4/3 [&_span]:hidden" />
             </div>
             <div className="min-w-0">
               <h3 className="font-heading text-base leading-snug font-semibold text-plum">

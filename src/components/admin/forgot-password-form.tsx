@@ -9,15 +9,15 @@ import { ArrowLeft, Mail, Send } from "lucide-react"
 import {
   FieldError,
   FieldIcon,
-  NotConnectedNotice,
   authFieldClass,
   authLinkClass,
   authSubmitClass,
 } from "@/components/admin/auth-fields"
+import { requestPasswordReset, type PasswordResult } from "@/lib/actions/password-reset"
 import { forgotPasswordSchema, type ForgotPasswordInput } from "@/lib/validations/auth"
 
 function ForgotPasswordForm() {
-  const [submitted, setSubmitted] = useState(false)
+  const [result, setResult] = useState<PasswordResult | null>(null)
   const {
     register,
     handleSubmit,
@@ -28,11 +28,8 @@ function ForgotPasswordForm() {
     defaultValues: { email: "" },
   })
 
-  // TODO backend : si l'e-mail correspond à un compte admin, créer un jeton
-  // aléatoire (haché en base, usage unique, 30 min) et envoyer le lien
-  // /admin/reinitialiser?token=… via Resend. Réponse identique dans tous les
-  // cas (on ne révèle jamais si l'adresse existe) + limitation des demandes.
-  const onSubmit = () => setSubmitted(true)
+  // Réponse toujours identique (on ne révèle pas si l'adresse a un compte).
+  const onSubmit = async (values: ForgotPasswordInput) => setResult(await requestPasswordReset(values))
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -63,12 +60,10 @@ function ForgotPasswordForm() {
         <Send />
       </button>
 
-      {submitted && (
-        <NotConnectedNotice>
-          L&apos;envoi des e-mails n&apos;est pas encore activé. Une fois le backend branché, ce
-          message sera&nbsp;: «&nbsp;Si un compte correspond à cette adresse, un e-mail contenant un
-          lien de réinitialisation vient de vous être envoyé. Ce lien est valable 30 minutes.&nbsp;»
-        </NotConnectedNotice>
+      {result && (
+        <p role="status" className="rounded-xl bg-white/70 px-4 py-3 text-sm text-plum">
+          {result.message}
+        </p>
       )}
 
       <p className="text-center">

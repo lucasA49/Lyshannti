@@ -91,7 +91,7 @@ export default async function AdminContactPage({ params }: Props) {
               Suivi
             </h2>
             <div className="mt-4">
-              <ContactActions status={contact.status} />
+              <ContactActions id={contact.id} status={contact.status} />
             </div>
             <p className="mt-5 text-xs text-plum/65">
               Suppression automatique le {formatLongDate(contactDeletionDate(contact.createdAt))} (RGPD).

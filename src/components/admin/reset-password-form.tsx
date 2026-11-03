@@ -2,18 +2,18 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, Circle, ShieldCheck } from "lucide-react"
 import { cn } from "cn"
 
 import {
-  NotConnectedNotice,
   PasswordInput,
   authLinkClass,
   authSubmitClass,
 } from "@/components/admin/auth-fields"
+import { resetPassword, type PasswordResult } from "@/lib/actions/password-reset"
 import {
   PASSWORD_MIN_LENGTH,
   resetPasswordSchema,
@@ -38,7 +38,8 @@ function ResetPasswordForm() {
   // Jeton du lien reçu par e-mail. Le serveur vérifiera qu'il existe, n'a pas
   // expiré et n'a pas déjà servi.
   const token = useSearchParams().get("token")
-  const [submitted, setSubmitted] = useState(false)
+  const router = useRouter()
+  const [result, setResult] = useState<PasswordResult | null>(null)
   const {
     register,
     handleSubmit,
@@ -67,9 +68,13 @@ function ResetPasswordForm() {
     )
   }
 
-  // TODO backend : vérifier le jeton, hacher le nouveau mot de passe (bcrypt),
-  // invalider le jeton et fermer toutes les sessions ouvertes du compte.
-  const onSubmit = () => setSubmitted(true)
+  // Le serveur vérifie le jeton, enregistre le nouveau mot de passe et ferme
+  // toutes les sessions ouvertes ; on renvoie ensuite vers la connexion.
+  const onSubmit = async (values: ResetPasswordInput) => {
+    const response = await resetPassword(token, values)
+    setResult(response)
+    if (response.ok) setTimeout(() => router.push("/admin/connexion"), 2000)
+  }
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -104,10 +109,10 @@ function ResetPasswordForm() {
         <ShieldCheck />
       </button>
 
-      {submitted && (
-        <NotConnectedNotice>
-          L&apos;enregistrement n&apos;est pas encore activé : il sera branché avec le backend.
-        </NotConnectedNotice>
+      {result && (
+        <p role={result.ok ? "status" : "alert"} className="rounded-xl bg-white/70 px-4 py-3 text-sm text-plum">
+          {result.message}
+        </p>
       )}
 
       <p className="text-center">

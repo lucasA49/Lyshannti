@@ -64,7 +64,14 @@ function ToolButton({
 
 const Separator = () => <span aria-hidden="true" className="mx-1 h-6 w-px shrink-0 bg-plum/15" />
 
-function EditorToolbar({ editor }: { editor: Editor }) {
+function EditorToolbar({
+  editor,
+  onPickImage,
+}: {
+  editor: Editor
+  /** Ouvre la bibliothèque pour insérer une image ou un bloc image + texte. */
+  onPickImage: (kind: "image" | "mediaText") => void
+}) {
   const [linkOpen, setLinkOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState("")
 
@@ -121,8 +128,8 @@ function EditorToolbar({ editor }: { editor: Editor }) {
         <ToolButton icon={ListOrdered} label="Liste numérotée" onClick={() => chain().toggleOrderedList().run()} active={state.orderedList} />
         <ToolButton icon={TextQuote} label="Citation simple" onClick={() => chain().toggleBlockquote().run()} active={state.blockquote} />
         <Separator />
-        <ToolButton icon={ImageIcon} label="Image" showLabel onClick={() => chain().insertImageBlock().run()} />
-        <ToolButton icon={Columns2} label="Image + texte" showLabel onClick={() => chain().insertMediaText().run()} />
+        <ToolButton icon={ImageIcon} label="Image" showLabel onClick={() => onPickImage("image")} />
+        <ToolButton icon={Columns2} label="Image + texte" showLabel onClick={() => onPickImage("mediaText")} />
         <ToolButton icon={Quote} label="Citation mise en avant" showLabel onClick={() => chain().insertPullQuote().run()} />
         <ToolButton icon={Info} label="Encadré" showLabel onClick={() => chain().insertCallout().run()} />
         <ToolButton icon={Minus} label="Séparateur" showLabel onClick={() => chain().setHorizontalRule().run()} />

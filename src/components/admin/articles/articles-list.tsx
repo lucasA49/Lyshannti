@@ -217,7 +217,15 @@ function ArticlesList({
                 </div>
 
                 <div className="min-w-0 flex-1 basis-full sm:basis-auto">
-                  <p className="truncate font-medium text-plum">{frenchTypo(article.title)}</p>
+                  <p className="truncate font-medium text-plum">
+                    {article.deletedAt ? (
+                      frenchTypo(article.title)
+                    ) : (
+                      <Link href={`/admin/articles/${article.id}`} className="rounded-sm outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">
+                        {frenchTypo(article.title)}
+                      </Link>
+                    )}
+                  </p>
                   <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-plum/70">
                     <span>{article.category.name}</span>
                     <span aria-hidden="true">·</span>
@@ -287,10 +295,10 @@ function ArticlesList({
                     </>
                   ) : (
                     <>
-                      <span aria-disabled="true" title="Modifier (l'éditeur arrive bientôt)" className={cn(iconButton, "cursor-not-allowed opacity-40 hover:bg-transparent")}>
+                      <Link href={`/admin/articles/${article.id}`} title="Modifier" className={iconButton}>
                         <Pencil aria-hidden="true" className="size-4" />
-                        <span className="sr-only">Modifier « {article.title} » (bientôt disponible)</span>
-                      </span>
+                        <span className="sr-only">Modifier « {article.title} »</span>
+                      </Link>
                       {article.publicUrl ? (
                         <Link href={article.publicUrl} target="_blank" title="Voir sur le site" className={iconButton}>
                           <ExternalLink aria-hidden="true" className="size-4" />

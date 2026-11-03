@@ -23,6 +23,8 @@ export type PostSummary = {
   /** Calculé à l'enregistrement à partir du nombre de mots. */
   readingMinutes: number
   coverAlt: string
+  /** Adresse de l'image principale (absente : emplacement décoratif). */
+  coverUrl?: string
   /** Vrai tant que l'article n'a pas de page (données de démonstration). */
   placeholder?: boolean
 }

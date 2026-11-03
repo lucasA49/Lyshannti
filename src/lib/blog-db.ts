@@ -13,9 +13,11 @@ import {
 } from "@/lib/blog-types"
 import type { RichTextDoc } from "@/lib/rich-text"
 
-// Article visible sur le site : publié, date atteinte, pas à la corbeille.
+// Article visible sur le site : publié ou programmé dont la date est atteinte,
+// pas à la corbeille. Les pages sont régénérées toutes les 5 minutes
+// (revalidate) : un article programmé apparaît au plus 5 minutes après l'heure.
 const published = (): Prisma.ArticleWhereInput => ({
-  status: "PUBLISHED",
+  status: { in: ["PUBLISHED", "SCHEDULED"] },
   publishedAt: { lte: new Date() },
   deletedAt: null,
 })
@@ -26,7 +28,7 @@ const summarySelect = {
   publishedAt: true,
   readingMinutes: true,
   category: { select: { slug: true, name: true, icon: true } },
-  cover: { select: { alt: true } },
+  cover: { select: { alt: true, url: true } },
 } satisfies Prisma.ArticleSelect
 
 type SummaryRow = Prisma.ArticleGetPayload<{ select: typeof summarySelect }>
@@ -39,6 +41,7 @@ function toSummary(row: SummaryRow): PostSummary {
     publishedAt: (row.publishedAt ?? new Date()).toISOString(),
     readingMinutes: row.readingMinutes,
     coverAlt: row.cover?.alt ?? "",
+    coverUrl: row.cover?.url,
   }
 }
 

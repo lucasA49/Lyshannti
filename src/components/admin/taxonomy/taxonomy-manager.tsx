@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Pencil, Plus, Trash2, X } from "lucide-react"
 import { cn } from "cn"
 
-import { NotConnectedNotice } from "@/components/admin/auth-fields"
+import type { ActionResult } from "@/lib/admin/actions/articles"
+import { createTag, deleteCategory, deleteTag, saveCategory } from "@/lib/admin/actions/taxonomy"
 import { CategoryIcon } from "@/components/blog/category-icon"
 import type { AdminCategory, AdminTag } from "@/lib/admin/taxonomy"
 import type { CategoryIcon as CategoryIconName } from "@/lib/blog-types"
@@ -39,7 +40,7 @@ function CategoryForm({
   icons: { value: CategoryIconName; label: string }[]
   initial?: AdminCategory
   onCancel: () => void
-  onSubmit: () => void
+  onSubmit: (values: { name: string; slug: string; icon: CategoryIconName }) => void
 }) {
   const [name, setName] = useState(initial?.name ?? "")
   const [slug, setSlug] = useState(initial?.slug ?? "")
@@ -51,7 +52,7 @@ function CategoryForm({
     <form
       onSubmit={(event) => {
         event.preventDefault()
-        if (name.trim()) onSubmit()
+        if (name.trim()) onSubmit({ name, slug, icon })
       }}
       className="space-y-4 rounded-2xl border border-gold/40 bg-[#faf3f1] p-4"
     >
@@ -139,20 +140,27 @@ function TaxonomyManager({
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<string | null>(null)
   const [newTag, setNewTag] = useState("")
-  const [notice, setNotice] = useState(false)
+  const [result, setResult] = useState<ActionResult | null>(null)
+  const [pending, startTransition] = useTransition()
 
-  const done = () => {
-    setCreating(false)
-    setEditing(null)
-    setNotice(true)
-  }
+  // Lance une action serveur ; referme le formulaire si elle réussit.
+  const run = (action: () => Promise<ActionResult>, onSuccess?: () => void) =>
+    startTransition(async () => {
+      const response = await action()
+      setResult(response)
+      if (response.ok) {
+        setCreating(false)
+        setEditing(null)
+        onSuccess?.()
+      }
+    })
 
   return (
     <div className="space-y-6">
-      {notice && (
-        <NotConnectedNotice>
-          Les modifications ne sont pas encore enregistrées : elles le seront une fois l&apos;administration reliée à la base de données.
-        </NotConnectedNotice>
+      {result && (
+        <p role="status" className={cn("rounded-xl px-4 py-3 text-sm text-plum", result.ok ? "bg-gold/20" : "border border-destructive/30 bg-destructive/5")}>
+          {result.message}
+        </p>
       )}
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:items-start">
@@ -162,7 +170,7 @@ function TaxonomyManager({
           description="Chaque article appartient à une catégorie. Elles apparaissent en filtres sur la page Blog."
         >
           {creating ? (
-            <CategoryForm icons={icons} onCancel={() => setCreating(false)} onSubmit={done} />
+            <CategoryForm icons={icons} onCancel={() => setCreating(false)} onSubmit={(values) => run(() => saveCategory(values))} />
           ) : (
             <button
               type="button"
@@ -181,7 +189,12 @@ function TaxonomyManager({
             {categories.map((category) => (
               <li key={category.slug} className="py-3">
                 {editing === category.slug ? (
-                  <CategoryForm icons={icons} initial={category} onCancel={() => setEditing(null)} onSubmit={done} />
+                  <CategoryForm
+                    icons={icons}
+                    initial={category}
+                    onCancel={() => setEditing(null)}
+                    onSubmit={(values) => run(() => saveCategory(values, category.slug))}
+                  />
                 ) : (
                   <div className="flex items-center gap-3">
                     <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blush text-plum">
@@ -213,8 +226,8 @@ function TaxonomyManager({
                     </button>
                     <button
                       type="button"
-                      onClick={done}
-                      disabled={category.count > 0}
+                      onClick={() => run(() => deleteCategory(category.slug))}
+                      disabled={pending || category.count > 0}
                       className={iconButton}
                       title={category.count > 0 ? "Déplacez d'abord ses articles dans une autre catégorie" : "Supprimer"}
                     >
@@ -239,10 +252,7 @@ function TaxonomyManager({
           <form
             onSubmit={(event) => {
               event.preventDefault()
-              if (newTag.trim()) {
-                setNewTag("")
-                done()
-              }
+              if (newTag.trim()) run(() => createTag(newTag), () => setNewTag(""))
             }}
             className="flex gap-2"
           >
@@ -275,7 +285,8 @@ function TaxonomyManager({
                 <span className="text-xs text-plum/55">{tag.count}</span>
                 <button
                   type="button"
-                  onClick={done}
+                  onClick={() => run(() => deleteTag(tag.slug))}
+                  disabled={pending}
                   title="Supprimer"
                   className="flex size-6 items-center justify-center rounded-full text-plum/60 outline-none hover:bg-blush hover:text-plum focus-visible:ring-2 focus-visible:ring-ring/50"
                 >

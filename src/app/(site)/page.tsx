@@ -10,6 +10,10 @@ import { LatestPosts } from "@/components/home/latest-posts";
 import { ServicesSection } from "@/components/home/services-section";
 import { ValuesBar } from "@/components/home/values-bar";
 
+// Régénérée au plus toutes les 5 minutes : les articles programmés y apparaissent
+// sans republication (et immédiatement après chaque action dans l'admin).
+export const revalidate = 300;
+
 export const metadata: Metadata = pageMetadata({
   description: siteConfig.description,
   path: "/",
