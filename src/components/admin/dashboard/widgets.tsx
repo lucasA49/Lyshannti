@@ -5,7 +5,7 @@ import {
   postStatusLabels,
   type ContactStatus,
   type PostStatus,
-} from "@/lib/admin/dashboard"
+} from "@/lib/admin/labels"
 
 // Briques visuelles communes du tableau de bord.
 

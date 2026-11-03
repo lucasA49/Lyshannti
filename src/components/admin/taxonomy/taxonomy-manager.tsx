@@ -7,7 +7,7 @@ import { cn } from "cn"
 import { NotConnectedNotice } from "@/components/admin/auth-fields"
 import { CategoryIcon } from "@/components/blog/category-icon"
 import type { AdminCategory, AdminTag } from "@/lib/admin/taxonomy"
-import type { CategoryIcon as CategoryIconName } from "@/lib/blog"
+import type { CategoryIcon as CategoryIconName } from "@/lib/blog-types"
 import { slugify } from "@/lib/slug"
 
 const fieldClass =

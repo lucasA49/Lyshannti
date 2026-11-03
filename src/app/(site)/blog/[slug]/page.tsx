@@ -12,13 +12,8 @@ import { Container } from "@/components/layout/container";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { siteConfig } from "@/config/site";
-import {
-  blogListHref,
-  getCategoriesWithCount,
-  getLatestPosts,
-  getPostBySlug,
-  getPostSlugs,
-} from "@/lib/blog";
+import { blogListHref } from "@/lib/blog-urls"
+import { getCategoriesWithCount, getLatestPosts, getPostBySlug, getPostSlugs } from "@/lib/blog";
 import { formatPostDateLong, frenchTypo } from "@/lib/format";
 import { ogImage, pageMetadata } from "@/lib/seo";
 

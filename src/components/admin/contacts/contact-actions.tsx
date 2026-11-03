@@ -5,7 +5,7 @@ import { Trash2 } from "lucide-react"
 import { cn } from "cn"
 
 import { NotConnectedNotice } from "@/components/admin/auth-fields"
-import { contactStatusLabels, type ContactStatus } from "@/lib/admin/dashboard"
+import { contactStatusLabels, type ContactStatus } from "@/lib/admin/labels"
 
 const statuses: ContactStatus[] = ["NEW", "IN_PROGRESS", "DONE"]
 

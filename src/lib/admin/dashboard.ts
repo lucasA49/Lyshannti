@@ -4,9 +4,10 @@
 
 import { demoAdmin, demoContacts, demoPosts as allDemoPosts } from "@/content/admin.placeholder"
 
-export type ContactStatus = "NEW" | "IN_PROGRESS" | "DONE"
-export type PostStatus = "DRAFT" | "SCHEDULED" | "PUBLISHED"
-export type SeoIssue = "metaDescription" | "imageAlt" | "coverImage" | "focusKeyword"
+import type { ContactStatus, PostStatus, SeoIssue } from "@/lib/admin/labels"
+
+export type { ContactStatus, PostStatus, SeoIssue } from "@/lib/admin/labels"
+export { contactStatusLabels, postStatusLabels, seoIssueLabels } from "@/lib/admin/labels"
 
 export type DashboardData = {
   isDemo: boolean
@@ -27,7 +28,13 @@ export type DashboardData = {
   seoIssues: { id: string; title: string; issues: SeoIssue[] }[]
 }
 
+// Base de données si disponible (sinon démo : site statique GitHub Pages).
+const fromDatabase = () => (process.env.DATABASE_URL ? import("@/lib/admin/admin-db") : null)
+
 export async function getDashboardData(): Promise<DashboardData> {
+  const database = await fromDatabase()
+  if (database) return database.getDashboardData()
+
   // Les articles à la corbeille ne comptent pas.
   const demoPosts = allDemoPosts.filter((post) => !post.deletedAt)
   const now = Date.now()
@@ -68,23 +75,4 @@ export async function getDashboardData(): Promise<DashboardData> {
       .filter((post) => post.seoIssues.length > 0)
       .map(({ id, title, seoIssues }) => ({ id, title, issues: seoIssues })),
   }
-}
-
-export const contactStatusLabels: Record<ContactStatus, string> = {
-  NEW: "Nouveau",
-  IN_PROGRESS: "En cours",
-  DONE: "Traité",
-}
-
-export const postStatusLabels: Record<PostStatus, string> = {
-  DRAFT: "Brouillon",
-  SCHEDULED: "Programmé",
-  PUBLISHED: "Publié",
-}
-
-export const seoIssueLabels: Record<SeoIssue, string> = {
-  metaDescription: "Meta description manquante",
-  imageAlt: "Texte alternatif (ALT) d'image manquant",
-  coverImage: "Image principale manquante",
-  focusKeyword: "Mot-clé principal manquant",
 }

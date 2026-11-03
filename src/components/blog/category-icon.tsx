@@ -2,7 +2,7 @@ import { Feather, Heart, Leaf, Lightbulb, Sparkles } from "lucide-react"
 import { cn } from "cn"
 
 import { LotusIcon } from "@/components/brand/lotus-icon"
-import type { CategoryIcon as CategoryIconName } from "@/lib/blog"
+import type { CategoryIcon as CategoryIconName } from "@/lib/blog-types"
 
 // Icône d'une catégorie du blog. La liste est fermée : l'admin choisira parmi
 // ces noms (champ `icon` de la table categories).

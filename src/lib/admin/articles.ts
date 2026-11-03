@@ -28,7 +28,12 @@ export type AdminArticle = {
   publicUrl?: string
 }
 
+const fromDatabase = () => (process.env.DATABASE_URL ? import("@/lib/admin/admin-db") : null)
+
 export async function getAdminArticles(): Promise<AdminArticle[]> {
+  const database = await fromDatabase()
+  if (database) return database.getAdminArticles()
+
   const pages = new Set(await getPostSlugs())
 
   return demoPosts.map((post) => {
@@ -44,6 +49,8 @@ export async function getAdminArticles(): Promise<AdminArticle[]> {
   })
 }
 
-export async function getAdminCategories() {
+export async function getAdminCategories(): Promise<{ slug: string; name: string }[]> {
+  const database = await fromDatabase()
+  if (database) return database.getAdminCategories()
   return categoriesPlaceholder.map(({ slug, name }) => ({ slug, name }))
 }

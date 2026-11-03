@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 
 import { siteConfig } from "@/config/site";
-import { blogListHref, getCategories, getPostBySlug, getPosts, getPostSlugs } from "@/lib/blog";
+import { blogListHref } from "@/lib/blog-urls"
+import { getCategories, getPostBySlug, getPosts, getPostSlugs } from "@/lib/blog";
 
 export const dynamic = "force-static";
 

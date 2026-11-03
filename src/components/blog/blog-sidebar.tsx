@@ -3,7 +3,8 @@ import { CalendarDays } from "lucide-react"
 
 import { ImagePlaceholder } from "@/components/ui/image-placeholder"
 import { SearchForm } from "@/components/blog/search-form"
-import { postHref, type PostSummary } from "@/lib/blog"
+import { postHref } from "@/lib/blog-urls"
+import type { PostSummary } from "@/lib/blog-types"
 import { formatPostDate, frenchTypo } from "@/lib/format"
 
 function SidebarTitle({ id, children }: { id: string; children: React.ReactNode }) {

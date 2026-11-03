@@ -3,18 +3,20 @@ import type { Metadata } from "next";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { SettingsForm } from "@/components/admin/settings/settings-form";
 import { siteConfig } from "@/config/site";
+import { getSiteSettings } from "@/lib/admin/settings";
 
 export const metadata: Metadata = {
   title: "Paramètres",
 };
 
-// Valeurs actuelles : celles de siteConfig (provisoires), en attendant la table settings.
-export default function AdminSettingsPage() {
+// Valeurs : table settings si la base est disponible, sinon siteConfig (provisoire).
+export default async function AdminSettingsPage() {
+  const saved = await getSiteSettings();
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <AdminPageHeader title="Paramètres" description="Les informations générales du site." />
       <SettingsForm
-        initial={{
+        initial={saved ?? {
           name: siteConfig.name,
           tagline: siteConfig.tagline,
           description: siteConfig.description,

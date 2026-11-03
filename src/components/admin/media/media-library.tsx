@@ -189,7 +189,7 @@ function MediaLibrary({
 
           <div className="mt-5">
             {visible.length === 0 ? (
-              <EmptyState>Aucune image ne correspond.</EmptyState>
+              <EmptyState>{items.length === 0 ? "La bibliothèque est vide : ajoutez vos premières images ci-dessus." : "Aucune image ne correspond."}</EmptyState>
             ) : (
               <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                 {visible.map((item) => (

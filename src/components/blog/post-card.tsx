@@ -2,7 +2,8 @@ import Link from "next/link"
 import { CalendarDays, Clock } from "lucide-react"
 
 import { ImagePlaceholder } from "@/components/ui/image-placeholder"
-import { postHref, type PostSummary } from "@/lib/blog"
+import { postHref } from "@/lib/blog-urls"
+import type { PostSummary } from "@/lib/blog-types"
 import { formatPostDate, frenchTypo } from "@/lib/format"
 
 function PostCard({

@@ -2,7 +2,8 @@ import Link from "next/link"
 import { cn } from "cn"
 
 import { CategoryIcon } from "@/components/blog/category-icon"
-import { blogListHref, type BlogCategory } from "@/lib/blog"
+import { blogListHref } from "@/lib/blog-urls"
+import type { BlogCategory } from "@/lib/blog-types"
 
 // Filtres par catégorie : de vrais liens vers des pages indexables.
 // Sur mobile, la rangée défile horizontalement.

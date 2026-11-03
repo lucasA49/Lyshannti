@@ -8,8 +8,22 @@ import { demoMedia } from "@/content/admin.placeholder"
 export const MEDIA_ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"]
 export const MEDIA_MAX_SIZE_MB = 10
 
-export type MediaItem = (typeof demoMedia)[number]
+export type MediaItem = {
+  id: string
+  filename: string
+  alt: string
+  width: number
+  height: number
+  sizeKb: number
+  createdAt: string
+  /** Nombre d'articles qui l'utilisent (image principale ou de partage). */
+  usedIn: number
+}
+
+const fromDatabase = () => (process.env.DATABASE_URL ? import("@/lib/admin/admin-db") : null)
 
 export async function getMediaLibrary(): Promise<MediaItem[]> {
+  const database = await fromDatabase()
+  if (database) return database.getMediaLibrary()
   return [...demoMedia].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }

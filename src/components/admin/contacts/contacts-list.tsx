@@ -6,7 +6,7 @@ import { ChevronRight, Search } from "lucide-react"
 import { cn } from "cn"
 
 import { EmptyState, StatusBadge } from "@/components/admin/dashboard/widgets"
-import { contactStatusLabels, type ContactStatus } from "@/lib/admin/dashboard"
+import { contactStatusLabels, type ContactStatus } from "@/lib/admin/labels"
 import type { ContactRecord } from "@/lib/admin/contacts"
 import { formatDayMonthTime } from "@/lib/admin/format"
 

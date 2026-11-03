@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation"
 
 import { PostGrid } from "@/components/blog/blog-shell"
-import { searchPosts } from "@/lib/blog"
+import { searchPosts } from "@/lib/blog-demo"
 
 // Résultats de recherche lus dans l'URL (?q=). Côté navigateur pour la démo
 // statique ; avec la base, la page lira `searchParams` côté serveur.

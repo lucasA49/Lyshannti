@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 
 import { pageMetadata } from "@/lib/seo";
 import { BlogListPage } from "@/components/blog/blog-list-page";
-import { blogListHref, getCategories, getCategory, getPosts } from "@/lib/blog";
+import { blogListHref } from "@/lib/blog-urls"
+import { getCategories, getCategory, getPosts } from "@/lib/blog";
 
 type Props = { params: Promise<{ slug: string; page: string }> };
 

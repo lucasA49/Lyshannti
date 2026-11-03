@@ -21,7 +21,7 @@ import { NotConnectedNotice } from "@/components/admin/auth-fields"
 import { EmptyState, StatusBadge } from "@/components/admin/dashboard/widgets"
 import { ImagePlaceholder } from "@/components/ui/image-placeholder"
 import type { AdminArticle } from "@/lib/admin/articles"
-import { seoIssueLabels, type PostStatus } from "@/lib/admin/dashboard"
+import { seoIssueLabels, type PostStatus } from "@/lib/admin/labels"
 import { formatDayMonth } from "@/lib/admin/format"
 import { frenchTypo } from "@/lib/format"
 

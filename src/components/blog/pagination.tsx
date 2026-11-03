@@ -2,7 +2,7 @@ import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "cn"
 
-import { blogListHref } from "@/lib/blog"
+import { blogListHref } from "@/lib/blog-urls"
 
 // Numéros affichés : première, dernière, et deux voisines de la page courante,
 // avec « … » entre les trous (ex. 1 … 4 5 6 … 20).

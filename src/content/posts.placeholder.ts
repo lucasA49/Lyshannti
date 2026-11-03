@@ -4,7 +4,7 @@
 // Seul le premier article a un contenu (repris de la maquette « 5 gestes ») et
 // donc une page ; les autres renvoient vers /blog (`placeholder`).
 
-import type { BlogCategory, PostDetail, PostSummary } from "@/lib/blog"
+import type { BlogCategory, PostDetail, PostSummary } from "@/lib/blog-types"
 import type { RichTextDoc, RichTextNode } from "@/lib/rich-text"
 
 export const categoriesPlaceholder: BlogCategory[] = [

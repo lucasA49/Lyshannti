@@ -4,7 +4,7 @@ import { PostCard } from "@/components/blog/post-card"
 import { Container } from "@/components/layout/container"
 import { SectionTitle } from "@/components/layout/section-title"
 import { SplitHero } from "@/components/layout/split-hero"
-import type { BlogCategory, PostSummary } from "@/lib/blog"
+import type { BlogCategory, PostSummary } from "@/lib/blog-types"
 
 // Gabarit commun des pages de liste du blog (tous les articles, catégories,
 // pagination, recherche) : en-tête, filtres, liste et colonne latérale.

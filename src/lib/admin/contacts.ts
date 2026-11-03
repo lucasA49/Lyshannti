@@ -22,11 +22,17 @@ export type ContactRecord = {
   status: ContactStatus
 }
 
+const fromDatabase = () => (process.env.DATABASE_URL ? import("@/lib/admin/admin-db") : null)
+
 export async function getContacts(): Promise<ContactRecord[]> {
+  const database = await fromDatabase()
+  if (database) return database.getContacts()
   return [...demoContacts].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
 export async function getContact(id: string): Promise<ContactRecord | undefined> {
+  const database = await fromDatabase()
+  if (database) return database.getContact(id)
   return demoContacts.find((contact) => contact.id === id)
 }
 

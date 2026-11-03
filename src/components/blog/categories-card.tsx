@@ -3,7 +3,8 @@ import { cn } from "cn"
 
 import { CategoryIcon } from "@/components/blog/category-icon"
 import { SidebarTitle, sidebarCardClass } from "@/components/blog/blog-sidebar"
-import { blogListHref, type CategoryWithCount } from "@/lib/blog"
+import { blogListHref } from "@/lib/blog-urls"
+import type { CategoryWithCount } from "@/lib/blog-types"
 
 // Liste des catégories avec le nombre d'articles (colonne latérale d'un article).
 function CategoriesCard({
