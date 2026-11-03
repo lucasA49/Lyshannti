@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
 
 import { pageMetadata } from "@/lib/seo";
-import { PageHero } from "@/components/layout/page-hero";
+import { BLOG_DESCRIPTION, BlogListPage } from "@/components/blog/blog-list-page";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Le blog",
-  description: "Conseils, astuces et actualités pour prendre soin de vous au quotidien.",
+  title: "Le blog : conseils, inspiration et bien-être",
+  description: BLOG_DESCRIPTION,
   path: "/blog",
 });
 
 export default function BlogPage() {
-  return (
-    <main id="contenu" className="flex-1">
-      <PageHero
-        title="Le blog"
-        description="Conseils, astuces et actualités pour prendre soin de vous au quotidien."
-      />
-    </main>
-  );
+  return <BlogListPage />;
 }

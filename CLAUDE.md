@@ -94,6 +94,8 @@ Code propre, documenté, maintenable et évolutif.
 - Composants : `src/components/layout/` (header, footer, container), `src/components/brand/` (logo, lotus), `src/components/home/` (sections de l'accueil).
 - Tant que le backend n'est pas prêt, les données de démonstration sont dans des fichiers marqués comme provisoires.
 - Toujours vérifier en mobile (390 px), tablette (768 px) et desktop.
+- Blog : toutes les lectures passent par `src/lib/blog.ts` (fonctions async, mêmes signatures quand Prisma remplacera `posts.placeholder.ts`). URL : `/blog`, `/blog/page/n`, `/blog/categorie/slug(/page/n)`, `/blog/recherche?q=` (noindex). Slugs d'article interdits : `page`, `categorie`, `recherche`. Icône de catégorie = liste fermée (`CategoryIcon`). En base : index (status, publishedAt) et (categoryId, publishedAt), recherche plein texte PostgreSQL « french », compteur de vues pour « Articles populaires », revalidation des pages à chaque publication.
+- Contenu des articles : document JSON Tiptap (colonne JSONB), jamais de HTML brut. Rendu par `RichText` (`src/components/blog/rich-text.tsx`), qui mappe chaque nœud vers un composant. Blocs prévus pour l'éditeur de l'admin : titres, paragraphes, listes, liens, citation, séparateur lotus, `image` (layout full / wide / left / right + légende), `mediaText` (image à gauche ou à droite + texte), `pullQuote` (citation mise en avant), `callout` (encadré). Tout nouveau bloc doit être ajouté aux deux : extension Tiptap de l'admin ET `RichText`.
 
 ## À fournir par l'utilisateur
 - Les vraies photos (Hero, prestations, approche, articles) : pour l'instant ce sont des `ImagePlaceholder`.

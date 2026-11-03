@@ -6,11 +6,10 @@ import { buttonVariants } from "@/components/ui/button-variants"
 import { PostCard } from "@/components/blog/post-card"
 import { Container } from "@/components/layout/container"
 import { SectionTitle } from "@/components/layout/section-title"
-import { latestPostsPlaceholder } from "@/content/posts.placeholder"
+import { getLatestPosts } from "@/lib/blog"
 
-function LatestPosts() {
-  // Provisoire : sera remplacé par les 3 derniers articles publiés (Prisma).
-  const posts = latestPostsPlaceholder
+async function LatestPosts() {
+  const posts = await getLatestPosts(3)
 
   return (
     <section aria-labelledby="latest-posts-title" className="py-16 sm:py-20">

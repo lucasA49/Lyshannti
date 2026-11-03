@@ -1,47 +1,45 @@
 import Link from "next/link"
-import { ArrowRight, CalendarDays } from "lucide-react"
+import { CalendarDays, Clock } from "lucide-react"
 
 import { ImagePlaceholder } from "@/components/ui/image-placeholder"
-import { postHref, type PostPreview } from "@/content/posts.placeholder"
+import { postHref, type PostSummary } from "@/lib/blog"
+import { formatPostDate, frenchTypo } from "@/lib/format"
 
-const dateFormat = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-})
-
-function PostCard({ post }: { post: PostPreview }) {
+function PostCard({
+  post,
+  headingLevel: Heading = "h3",
+}: {
+  post: PostSummary
+  headingLevel?: "h2" | "h3"
+}) {
   return (
     // Toute la carte est cliquable grâce au lien étiré (after:absolute) du titre.
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-gold/25 bg-white/70 shadow-lg shadow-plum/5 transition-shadow focus-within:ring-3 focus-within:ring-ring/60 hover:shadow-xl hover:shadow-plum/10">
+    <article className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-gold/25 bg-white/70 shadow-lg shadow-plum/5 transition-shadow focus-within:ring-3 focus-within:ring-ring/60 hover:shadow-xl hover:shadow-plum/10">
       <div className="relative">
         <ImagePlaceholder label={post.coverAlt} className="aspect-16/9" />
-        <span className="absolute bottom-0 left-4 translate-y-1/2 rounded-full bg-gold px-3 py-1 text-xs font-semibold text-plum shadow-sm">
+        <span className="absolute bottom-3 left-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-plum shadow-sm">
           {post.category.name}
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 p-5 pt-6">
-        <h3 className="flex-1 font-heading text-xl font-semibold text-plum">
+      <div className="flex flex-1 flex-col gap-4 p-5">
+        <Heading className="flex-1 font-heading text-xl leading-snug font-semibold text-plum">
           <Link
             href={postHref(post)}
-            className="outline-none after:absolute after:inset-0"
+            className="outline-none after:absolute after:inset-0 group-hover:underline group-hover:decoration-gold group-hover:underline-offset-4"
           >
-            {post.title}
+            {frenchTypo(post.title)}
           </Link>
-        </h3>
-        <div className="flex items-center justify-between text-sm text-plum/70">
+        </Heading>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-plum/75">
           <span className="inline-flex items-center gap-2">
-            <CalendarDays className="size-4 text-gold" aria-hidden="true" />
-            <time dateTime={post.publishedAt}>
-              {dateFormat.format(new Date(post.publishedAt))}
-            </time>
+            <CalendarDays className="size-4 text-plum/60" aria-hidden="true" />
+            <time dateTime={post.publishedAt}>{formatPostDate(post.publishedAt)}</time>
           </span>
-          <ArrowRight
-            aria-hidden="true"
-            className="size-5 text-plum transition-transform group-hover:translate-x-1"
-          />
+          <span className="inline-flex items-center gap-2">
+            <Clock className="size-4 text-plum/60" aria-hidden="true" />
+            {post.readingMinutes} min de lecture
+          </span>
         </div>
       </div>
     </article>
