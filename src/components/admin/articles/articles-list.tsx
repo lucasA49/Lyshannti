@@ -1,10 +1,11 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useTransition } from "react"
 import Link from "next/link"
 import {
   AlertTriangle,
   CheckCircle2,
+  CircleSlash,
   ChevronLeft,
   ChevronRight,
   Copy,
@@ -13,13 +14,22 @@ import {
   Pencil,
   RotateCcw,
   Search,
+  Send,
   Trash2,
 } from "lucide-react"
 import { cn } from "cn"
 
-import { NotConnectedNotice } from "@/components/admin/auth-fields"
 import { EmptyState, StatusBadge } from "@/components/admin/dashboard/widgets"
 import { ImagePlaceholder } from "@/components/ui/image-placeholder"
+import {
+  deleteArticlePermanently,
+  duplicateArticle,
+  publishArticle,
+  restoreArticle,
+  setArticleDraft,
+  trashArticle,
+  type ActionResult,
+} from "@/lib/admin/actions/articles"
 import type { AdminArticle } from "@/lib/admin/articles"
 import { seoIssueLabels, type PostStatus } from "@/lib/admin/labels"
 import { formatDayMonth } from "@/lib/admin/format"
@@ -64,7 +74,9 @@ function ArticlesList({
   const [category, setCategory] = useState("")
   const [sort, setSort] = useState<Sort>("updated")
   const [page, setPage] = useState(1)
-  const [notice, setNotice] = useState(false)
+  const [result, setResult] = useState<ActionResult | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [pending, startTransition] = useTransition()
 
   const counts = useMemo(() => {
     const result: Record<Tab, number> = { ALL: 0, DRAFT: 0, SCHEDULED: 0, PUBLISHED: 0, TRASH: 0 }
@@ -100,7 +112,12 @@ function ArticlesList({
     setPage(1)
   }
 
-  const action = () => setNotice(true)
+  // Action serveur (session admin revérifiée côté serveur), puis message.
+  // La liste se met à jour toute seule : l'action régénère la page.
+  const act = (action: (id: string) => Promise<ActionResult>, id: string) => {
+    setConfirmDeleteId(null)
+    startTransition(async () => setResult(await action(id)))
+  }
 
   return (
     <div className="rounded-3xl border border-gold/25 bg-white p-4 shadow-sm shadow-plum/5 sm:p-6">
@@ -174,12 +191,16 @@ function ArticlesList({
         {filtered.length} article{filtered.length > 1 ? "s" : ""}
       </p>
 
-      {notice && (
-        <div className="mt-4">
-          <NotConnectedNotice>
-            Cette action n&apos;est pas encore enregistrée : elle le sera une fois l&apos;administration reliée à la base de données.
-          </NotConnectedNotice>
-        </div>
+      {result && (
+        <p
+          role="status"
+          className={cn(
+            "mt-4 rounded-xl px-4 py-3 text-sm text-plum",
+            result.ok ? "bg-gold/20" : "border border-destructive/30 bg-destructive/5"
+          )}
+        >
+          {result.message}
+        </p>
       )}
 
       <div className="mt-5">
@@ -244,14 +265,25 @@ function ArticlesList({
                 <div className="ml-auto flex items-center gap-1">
                   {article.deletedAt ? (
                     <>
-                      <button type="button" onClick={action} title="Restaurer" className={iconButton}>
+                      <button type="button" disabled={pending} onClick={() => act(restoreArticle, article.id)} title="Restaurer" className={iconButton}>
                         <RotateCcw aria-hidden="true" className="size-4" />
                         <span className="sr-only">Restaurer « {article.title} »</span>
                       </button>
-                      <button type="button" onClick={action} title="Supprimer définitivement" className={cn(iconButton, "text-destructive hover:text-destructive")}>
-                        <Trash2 aria-hidden="true" className="size-4" />
-                        <span className="sr-only">Supprimer définitivement « {article.title} »</span>
-                      </button>
+                      {confirmDeleteId === article.id ? (
+                        <button
+                          type="button"
+                          disabled={pending}
+                          onClick={() => act(deleteArticlePermanently, article.id)}
+                          className="h-9 rounded-lg bg-destructive px-3 text-xs font-semibold text-white outline-none focus-visible:ring-3 focus-visible:ring-destructive/40"
+                        >
+                          Confirmer la suppression
+                        </button>
+                      ) : (
+                        <button type="button" onClick={() => setConfirmDeleteId(article.id)} title="Supprimer définitivement" className={cn(iconButton, "text-destructive hover:text-destructive")}>
+                          <Trash2 aria-hidden="true" className="size-4" />
+                          <span className="sr-only">Supprimer définitivement « {article.title} »</span>
+                        </button>
+                      )}
                     </>
                   ) : (
                     <>
@@ -267,11 +299,22 @@ function ArticlesList({
                       ) : (
                         <span aria-hidden="true" className="size-9" />
                       )}
-                      <button type="button" onClick={action} title="Dupliquer" className={iconButton}>
+                      {article.status === "DRAFT" ? (
+                        <button type="button" disabled={pending} onClick={() => act(publishArticle, article.id)} title="Publier maintenant" className={iconButton}>
+                          <Send aria-hidden="true" className="size-4" />
+                          <span className="sr-only">Publier « {article.title} » maintenant</span>
+                        </button>
+                      ) : (
+                        <button type="button" disabled={pending} onClick={() => act(setArticleDraft, article.id)} title="Repasser en brouillon (retirer du site)" className={iconButton}>
+                          <CircleSlash aria-hidden="true" className="size-4" />
+                          <span className="sr-only">Repasser « {article.title} » en brouillon</span>
+                        </button>
+                      )}
+                      <button type="button" disabled={pending} onClick={() => act(duplicateArticle, article.id)} title="Dupliquer" className={iconButton}>
                         <Copy aria-hidden="true" className="size-4" />
                         <span className="sr-only">Dupliquer « {article.title} »</span>
                       </button>
-                      <button type="button" onClick={action} title="Mettre à la corbeille" className={iconButton}>
+                      <button type="button" disabled={pending} onClick={() => act(trashArticle, article.id)} title="Mettre à la corbeille" className={iconButton}>
                         <Trash2 aria-hidden="true" className="size-4" />
                         <span className="sr-only">Mettre « {article.title} » à la corbeille</span>
                       </button>

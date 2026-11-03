@@ -19,9 +19,9 @@ import { ogImage, pageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
-// Articles générés au build ; avec la base, chaque publication ou modification
-// dans l'admin régénérera la page (revalidatePath).
-export const dynamicParams = false;
+// Articles générés au build ; un article publié ensuite est rendu à sa première
+// visite, et chaque modification dans l'admin régénère la page (revalidatePath).
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   return (await getPostSlugs()).map((slug) => ({ slug }));

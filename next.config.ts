@@ -17,6 +17,12 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    serverActions: {
+      // Envoi d'images depuis l'admin : une image (10 Mo max) par requête.
+      bodySizeLimit: "12mb",
+    },
+  },
   // URL avec « / » final partout (démo statique et futur hébergement) :
   // une seule forme d'URL par page pour le SEO.
   trailingSlash: true,

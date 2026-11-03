@@ -11,6 +11,8 @@ export const MEDIA_MAX_SIZE_MB = 10
 export type MediaItem = {
   id: string
   filename: string
+  /** Adresse de l'image (absente pour les images de démonstration). */
+  url?: string
   alt: string
   width: number
   height: number

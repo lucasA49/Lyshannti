@@ -8,7 +8,7 @@ import { getCategories, getCategory } from "@/lib/blog";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   return (await getCategories()).map((category) => ({ slug: category.slug }));

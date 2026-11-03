@@ -183,6 +183,7 @@ export async function getMediaLibrary(): Promise<MediaItem[]> {
     select: {
       id: true,
       filename: true,
+      url: true,
       alt: true,
       width: true,
       height: true,
@@ -194,6 +195,7 @@ export async function getMediaLibrary(): Promise<MediaItem[]> {
   return rows.map((row) => ({
     id: row.id,
     filename: row.filename,
+    url: row.url,
     alt: row.alt,
     width: row.width,
     height: row.height,

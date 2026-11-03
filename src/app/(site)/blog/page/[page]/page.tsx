@@ -8,9 +8,9 @@ import { getPosts } from "@/lib/blog";
 
 type Props = { params: Promise<{ page: string }> };
 
-// Pages 2, 3… générées au build ; avec la base, elles seront revalidées à
-// chaque publication (revalidatePath / revalidateTag depuis l'admin).
-export const dynamicParams = false;
+// Pages 2, 3… générées au build, puis à la demande quand le blog grandit ;
+// revalidées à chaque publication depuis l'admin (revalidatePath).
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const { totalPages } = await getPosts();

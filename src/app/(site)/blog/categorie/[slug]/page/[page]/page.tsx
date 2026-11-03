@@ -8,7 +8,7 @@ import { getCategories, getCategory, getPosts } from "@/lib/blog";
 
 type Props = { params: Promise<{ slug: string; page: string }> };
 
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const params: { slug: string; page: string }[] = [];
@@ -18,8 +18,7 @@ export async function generateStaticParams() {
       params.push({ slug: category.slug, page: String(page) });
     }
   }
-  // L'export statique refuse une liste vide : page factice exclue par dynamicParams.
-  return params.length > 0 ? params : [{ slug: "_", page: "2" }];
+  return params;
 }
 
 async function resolve(params: Props["params"]) {
