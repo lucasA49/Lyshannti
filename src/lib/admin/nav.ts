@@ -22,8 +22,8 @@ export type AdminNavItem = {
 export const adminNav: AdminNavItem[] = [
   { label: "Tableau de bord", href: "/admin", icon: LayoutDashboard, available: true },
   { label: "Articles", href: "/admin/articles", icon: FileText, available: true },
-  { label: "Catégories et tags", href: "/admin/categories", icon: Tags, available: false },
-  { label: "Médias", href: "/admin/medias", icon: Image, available: false },
+  { label: "Catégories et tags", href: "/admin/categories", icon: Tags, available: true },
+  { label: "Médias", href: "/admin/medias", icon: Image, available: true },
   { label: "Contacts", href: "/admin/contacts", icon: Mail, available: true, badge: "newContacts" },
-  { label: "Paramètres", href: "/admin/parametres", icon: Settings, available: false },
+  { label: "Paramètres", href: "/admin/parametres", icon: Settings, available: true },
 ]

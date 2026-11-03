@@ -119,3 +119,36 @@ export const demoPosts: {
   { id: "p9", title: "5 plantes apaisantes pour un meilleur sommeil", slug: "5-plantes-apaisantes-pour-un-meilleur-sommeil", category: "bien-etre", status: "PUBLISHED", updatedAt: fromNow(-40, 10), publishedAt: fromNow(-40), views: 430, seoIssues: [] },
   { id: "p10", title: "Les rituels de la pleine lune", slug: "les-rituels-de-la-pleine-lune", category: "conseils", status: "DRAFT", updatedAt: fromNow(-12, 16), deletedAt: fromNow(-2, 10), views: 0, seoIssues: ["metaDescription"] },
 ]
+
+// Bibliothèque d'images de démonstration (fichiers fictifs, aperçus vides).
+export const demoMedia: {
+  id: string
+  filename: string
+  alt: string
+  width: number
+  height: number
+  sizeKb: number
+  createdAt: string
+  usedIn: number
+}[] = [
+  { id: "m1", filename: "soin-visage-masque.webp", alt: "Femme détendue avec un masque de soin sur le visage", width: 1600, height: 900, sizeKb: 142, createdAt: fromNow(-3, 10), usedIn: 1 },
+  { id: "m2", filename: "galets-bougie.webp", alt: "Galets empilés et bougie allumée", width: 1600, height: 1067, sizeKb: 118, createdAt: fromNow(-8, 9), usedIn: 1 },
+  { id: "m3", filename: "huiles-orchidee.webp", alt: "Flacons d'huile, orchidée rose et serviette", width: 1600, height: 1067, sizeKb: 131, createdAt: fromNow(-12, 15), usedIn: 1 },
+  { id: "m4", filename: "tisane-fleurs.webp", alt: "Tasse de tisane entourée de fleurs", width: 1200, height: 1200, sizeKb: 96, createdAt: fromNow(-15, 11), usedIn: 2 },
+  { id: "m5", filename: "massage-dos.webp", alt: "Massage relaxant du dos", width: 1600, height: 900, sizeKb: 154, createdAt: fromNow(-20, 14), usedIn: 1 },
+  { id: "m6", filename: "lys-rose.webp", alt: "", width: 1600, height: 1067, sizeKb: 87, createdAt: fromNow(-1, 17), usedIn: 0 },
+  { id: "m7", filename: "pierres-ancrage.webp", alt: "", width: 1080, height: 1350, sizeKb: 102, createdAt: fromNow(0, 9), usedIn: 0 },
+  { id: "m8", filename: "bougie-doree.webp", alt: "Bougie dorée allumée", width: 1600, height: 900, sizeKb: 74, createdAt: fromNow(-30, 10), usedIn: 0 },
+]
+
+// Tags de démonstration (nombre d'articles qui les utilisent).
+export const demoTags: { slug: string; name: string; count: number }[] = [
+  { slug: "routine", name: "Routine", count: 3 },
+  { slug: "soin-visage", name: "Soin visage", count: 1 },
+  { slug: "beaute-naturelle", name: "Beauté naturelle", count: 2 },
+  { slug: "ancrage", name: "Ancrage", count: 1 },
+  { slug: "intuition", name: "Intuition", count: 1 },
+  { slug: "sommeil", name: "Sommeil", count: 1 },
+  { slug: "stress", name: "Stress", count: 2 },
+  { slug: "energie", name: "Énergie", count: 0 },
+]
