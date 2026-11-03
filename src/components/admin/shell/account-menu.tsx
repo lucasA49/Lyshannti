@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { ChevronDown, UserRound } from "lucide-react"
 
 import { LogoutButton } from "@/components/admin/shell/logout-button"
@@ -34,14 +35,13 @@ function AccountMenu({ name, email }: { name: string; email: string }) {
         </div>
         <ul className="pt-2">
           <li>
-            <span
-              aria-disabled="true"
-              className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-plum/50"
+            <Link
+              href="/admin/profil"
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm outline-none hover:bg-blush focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <UserRound aria-hidden="true" className="size-4" />
               Mon profil et mot de passe
-              <span className="ml-auto text-[0.65rem] uppercase">Bientôt</span>
-            </span>
+            </Link>
           </li>
           <li>
             <LogoutButton />
