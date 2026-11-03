@@ -100,6 +100,7 @@ Code propre, documenté, maintenable et évolutif.
 - Les URL Instagram, Facebook et LinkedIn, dans `siteConfig.socials` : un réseau sans URL n'est pas affiché.
 - Le contenu des pages légales (mentions légales, confidentialité, cookies) : les liens du footer existent déjà.
 - Le nom de domaine définitif : nécessaire pour `metadataBase`, les URL canoniques, Open Graph, `sitemap.xml` et `robots.txt`.
+- Les coordonnées réelles (téléphone, email, ville, horaires) : `siteConfig.contact` contient pour l'instant celles de la maquette.
 - Les infos de l'activité (ville ou zone, adresse si cabinet, téléphone, horaires) : pour le titre SEO de l'accueil et les données structurées Schema.org.
 - Un visuel de partage Open Graph (1200×630) et un favicon / logo en SVG ou PNG.
 
@@ -115,6 +116,20 @@ Code propre, documenté, maintenable et évolutif.
 ## Ordre de travail
 Le projet est **au tout début de son développement** : le site n'est pas encore en ligne. Les points en attente (domaine, infos de l'activité, photos, analytics) seront traités plus tard. Ne pas bloquer l'avancement dessus ni les redemander à chaque étape.
 Le **front** passe en premier. Le backend vient après. Attendre les instructions de l'utilisateur pour chaque étape.
+
+## Sécurité et données – points à discuter avant le backend (ne rien coder sans validation)
+La base de données va vivre longtemps (articles du blog) et l'admin se connecte pour les gérer.
+- **Mots de passe** : hachage `bcryptjs` (le sel est généré et stocké automatiquement dans le hash, coût ≥ 12) ou argon2id. Jamais de mot de passe en clair ni de hash « maison ».
+- **Sessions** : NextAuth v4 + Credentials impose des sessions JWT (cookie chiffré). Un JWT ne se révoque pas avant expiration → durée courte + `sessionVersion` en base, ou sessions en base (Better Auth). Décision à prendre.
+- **Cookies / tokens** : httpOnly, Secure, SameSite=Lax, jamais dans `localStorage`. Secret d'auth long et aléatoire dans `.env`.
+- **Connexion** : pas d'inscription publique (admin créé par un script de seed), limitation des tentatives (anti-brute-force), messages d'erreur génériques. 2FA en option.
+- **Protection des routes** : `proxy.ts` (Next 16) pour rediriger, MAIS vérification de la session dans chaque Server Action / Route Handler (le proxy seul ne suffit pas).
+- **Réinitialisation du mot de passe** : token aléatoire, haché en base, usage unique, expiration courte.
+- **Contenu Tiptap** : assainir le HTML côté serveur avant enregistrement et affichage (XSS).
+- **Uploads d'images** : vérifier type et taille, renommer, ne jamais exécuter.
+- **Validation** : Zod côté serveur sur toutes les entrées ; Prisma protège des injections SQL.
+- **Données durables** : `prisma migrate` (jamais `db push` en production), sauvegardes automatiques de la base, suppression douce (`deletedAt`) pour les articles.
+- **En-têtes de sécurité** : CSP, HSTS, X-Frame-Options, etc.
 
 ## Backend – à revoir plus tard (ne pas traiter avant que l'utilisateur le demande)
 Décisions ouvertes :

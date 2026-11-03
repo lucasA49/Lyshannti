@@ -7,6 +7,7 @@ import {
   LinkedinIcon,
 } from "@/components/brand/social-icons"
 import { Container } from "@/components/layout/container"
+import { NavLinks } from "@/components/layout/nav-links"
 import { siteConfig } from "@/config/site"
 
 const socialLinks = [
@@ -30,15 +31,7 @@ function Footer() {
         </div>
 
         <nav aria-label="Navigation du pied de page">
-          <ul className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm">
-            {siteConfig.nav.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className={linkClass}>
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <NavLinks className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm" />
         </nav>
 
         {socialLinks.length > 0 && (

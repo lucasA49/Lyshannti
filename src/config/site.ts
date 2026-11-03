@@ -11,6 +11,13 @@ export const siteConfig = {
     { label: "Contact", href: "/contact" },
   ],
   cta: { label: "Prendre rendez-vous", href: "/contact" },
+  // ⚠️ PROVISOIRE : coordonnées reprises de la maquette, à remplacer par les vraies.
+  contact: {
+    phone: "06 12 34 56 78",
+    email: "contact@lyshannti.fr",
+    city: "Cholet, France",
+    hours: { short: "Lun – Ven : 9h – 18h", full: "Du lundi au vendredi, de 9h à 18h" },
+  },
   // À compléter : un réseau sans URL n'est pas affiché dans le footer.
   socials: {
     instagram: "",
