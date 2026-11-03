@@ -147,6 +147,7 @@ Décisions prises :
 - Formulaire de contact (validé le 2026-11-03) : e-mail de notification via Resend à chaque demande (Reply-To = visiteur, pour répondre depuis la boîte mail) ET copie en base. Page Contacts de l'admin volontairement légère : liste, recherche, statut (Nouveau / En cours / Traité), lecture, suppression. Suppression automatique des demandes après 12 mois (RGPD, à mentionner dans la politique de confidentialité). Anti-spam : champ piège (honeypot) + limitation des envois. Pas de CRM complet.
 
 Décisions ouvertes :
+- Hébergement (réflexion en cours, 2026-11-03) : Vercel Pro (~20 €/mois, base Neon via le Marketplace Vercel en région Europe, zéro maintenance ; l'offre gratuite Hobby est interdite en usage commercial) OU VPS (Hetzner/OVH/Scaleway ~5–10 €/mois + Coolify, PostgreSQL sur le serveur, sauvegarde nocturne externalisée sur R2 + test de restauration mensuel, maintenance 1–2 h/mois). Le code est le même dans les deux cas. Proposé en complément : Cloudflare R2 (images, sauvegardes), Resend région Europe, Better Auth à la place de NextAuth v4 (à valider). Comptes à créer au nom de la cliente.
 - Authentification : garder NextAuth v4 (stable, plus d'évolution) ou passer à Better Auth (moderne, bonne intégration Prisma).
 - Stockage des images de la bibliothèque média (disque local, Vercel Blob, S3…).
 - Source des statistiques du dashboard (données internes uniquement, ou outil d'analytics).
@@ -160,4 +161,5 @@ Nettoyage des dépendances :
 Déjà fait :
 - `prisma7.config.ts` renommé en `prisma.config.ts` (`prisma validate` passe).
 - `dotenv` ajouté aux `devDependencies`.
-- Le schéma Prisma ne contient encore aucun modèle et aucune migration n'a été lancée.
+- Schéma Prisma complet (12 tables) et première migration `init` appliquée.
+- Base locale de développement : Postgres.app (PostgreSQL 18), base `lyshannti` et rôle `lyshannti` (droit CREATEDB pour la base fantôme de `migrate dev`). Identifiants uniquement dans `.env` (non versionné).

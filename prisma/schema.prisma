@@ -1,7 +1,11 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Schéma de la base de données Lyshannti (PostgreSQL, Prisma 7).
+// Les écrans de l'admin et les pages publiques lisent ces tables via
+// src/lib/blog.ts et src/lib/admin/*.ts (aujourd'hui sur des données de démo).
+//
+// Règles :
+// - toute modification passe par une migration (`prisma migrate dev`), jamais
+//   `db push` en production ;
+// - noms de tables en snake_case (@@map), champs en camelCase côté code.
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +14,250 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ─── Authentification ────────────────────────────────────────────────────────
+// ⚠️ Provisoire tant que la bibliothèque d'authentification n'est pas choisie
+// (Better Auth ou NextAuth v4) : elle pourra imposer ses propres tables.
+
+enum Role {
+  ADMIN
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  /// Hash bcrypt (le sel est inclus dans le hash). Jamais de mot de passe en clair.
+  passwordHash String
+  role         Role      @default(ADMIN)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  articles            Article[]
+  media               Media[]
+
+  @@map("users")
+}
+
+/// Sessions en base : révocables (déconnexion à distance, changement de mot de passe).
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  /// Empreinte (SHA-256) du jeton du cookie : le jeton lui-même n'est jamais stocké.
+  tokenHash String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+/// Liens « mot de passe oublié » : usage unique, valables 30 minutes.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+/// Tentatives de connexion (limitation anti-force brute). Purgées après 24 h.
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ipAddress String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([ipAddress, createdAt])
+  @@map("login_attempts")
+}
+
+// ─── Blog ────────────────────────────────────────────────────────────────────
+
+/// Icônes possibles d'une catégorie (liste fermée, voir category-icon.tsx).
+enum CategoryIcon {
+  lotus
+  sparkles
+  heart
+  leaf
+  feather
+  lightbulb
+}
+
+model Category {
+  id        String       @id @default(cuid())
+  slug      String       @unique
+  name      String
+  icon      CategoryIcon @default(lotus)
+  /// Ordre d'affichage dans les filtres du blog.
+  position  Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  articles Article[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  articles ArticleTag[]
+
+  @@map("tags")
+}
+
+enum ArticleStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+}
+
+model Article {
+  id             String        @id @default(cuid())
+  /// Adresse /blog/[slug]. Réservés : page, categorie, recherche.
+  slug           String        @unique
+  title          String
+  /// Chapô (introduction), aussi meta description par défaut.
+  excerpt        String
+  /// Document JSON de l'éditeur Tiptap (lu par RichText). Jamais de HTML brut.
+  content        Json
+  status         ArticleStatus @default(DRAFT)
+  /// Date de publication (passée) ou programmée (future).
+  publishedAt    DateTime?
+  /// Corbeille (suppression douce) ; suppression définitive après 30 jours.
+  deletedAt      DateTime?
+  readingMinutes Int           @default(1)
+  /// Compteur de lectures anonyme (sans cookie ni donnée personnelle).
+  viewCount      Int           @default(0)
+
+  categoryId String
+  coverId    String?
+  authorId   String?
+
+  // Réglages SEO (vides = valeurs par défaut : titre, chapô, image principale)
+  metaTitle       String?
+  metaDescription String?
+  focusKeyword    String?
+  canonicalUrl    String?
+  ogImageId       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Restrict : impossible de supprimer une catégorie qui contient des articles.
+  category Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  cover    Media?       @relation("ArticleCover", fields: [coverId], references: [id], onDelete: SetNull)
+  ogImage  Media?       @relation("ArticleOgImage", fields: [ogImageId], references: [id], onDelete: SetNull)
+  author   User?        @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  tags     ArticleTag[]
+
+  // Requêtes du blog : articles publiés par date, par catégorie, corbeille.
+  // La recherche plein texte (tsvector « french ») sera ajoutée par migration SQL.
+  @@index([status, publishedAt])
+  @@index([categoryId, publishedAt])
+  @@index([deletedAt])
+  @@map("articles")
+}
+
+model ArticleTag {
+  articleId String
+  tagId     String
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@index([tagId])
+  @@map("article_tags")
+}
+
+/// Bibliothèque d'images. Le fichier est sur le stockage (R2, disque…), ici ses infos.
+model Media {
+  id           String   @id @default(cuid())
+  /// Nom d'origine, affiché dans l'admin.
+  filename     String
+  /// Clé du fichier sur le stockage (nom généré, jamais celui envoyé).
+  storageKey   String   @unique
+  url          String
+  mimeType     String
+  sizeBytes    Int
+  width        Int
+  height       Int
+  alt          String   @default("")
+  uploadedById String?
+  createdAt    DateTime @default(now())
+
+  uploadedBy User?     @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  coverOf    Article[] @relation("ArticleCover")
+  ogImageOf  Article[] @relation("ArticleOgImage")
+
+  @@index([createdAt])
+  @@map("media")
+}
+
+// ─── Demandes de contact ─────────────────────────────────────────────────────
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  DONE
+}
+
+/// Demandes du formulaire. Supprimées automatiquement 12 mois après `createdAt` (RGPD).
+model Contact {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  status    ContactStatus @default(NEW)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status, createdAt])
+  @@index([createdAt])
+  @@map("contacts")
+}
+
+// ─── Paramètres du site ──────────────────────────────────────────────────────
+
+/// Une seule ligne (id = 1) : réglages modifiables depuis /admin/parametres.
+model Setting {
+  id                Int      @id @default(1)
+  siteName          String
+  tagline           String   @default("")
+  description       String   @default("")
+  phone             String   @default("")
+  email             String   @default("")
+  city              String   @default("")
+  hours             String   @default("")
+  instagramUrl      String   @default("")
+  facebookUrl       String   @default("")
+  linkedinUrl       String   @default("")
+  notificationEmail String
+  updatedAt         DateTime @updatedAt
+
+  @@map("settings")
 }
