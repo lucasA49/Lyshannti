@@ -2,7 +2,7 @@
 // Aujourd'hui : démonstration (`admin.placeholder.ts`). Demain : requêtes Prisma,
 // lancées en parallèle et uniquement après vérification de la session admin.
 
-import { demoAdmin, demoContacts, demoPosts } from "@/content/admin.placeholder"
+import { demoAdmin, demoContacts, demoPosts as allDemoPosts } from "@/content/admin.placeholder"
 
 export type ContactStatus = "NEW" | "IN_PROGRESS" | "DONE"
 export type PostStatus = "DRAFT" | "SCHEDULED" | "PUBLISHED"
@@ -28,6 +28,8 @@ export type DashboardData = {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
+  // Les articles à la corbeille ne comptent pas.
+  const demoPosts = allDemoPosts.filter((post) => !post.deletedAt)
   const now = Date.now()
   const inTwoWeeks = now + 14 * 24 * 60 * 60 * 1000
   const monthStart = new Date()
