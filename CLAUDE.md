@@ -143,11 +143,13 @@ La base de données va vivre longtemps (articles du blog) et l'admin se connecte
 - **En-têtes de sécurité** : CSP, HSTS, X-Frame-Options, etc.
 
 ## Backend – à revoir plus tard (ne pas traiter avant que l'utilisateur le demande)
+Décisions prises :
+- Formulaire de contact (validé le 2026-11-03) : e-mail de notification via Resend à chaque demande (Reply-To = visiteur, pour répondre depuis la boîte mail) ET copie en base. Page Contacts de l'admin volontairement légère : liste, recherche, statut (Nouveau / En cours / Traité), lecture, suppression. Suppression automatique des demandes après 12 mois (RGPD, à mentionner dans la politique de confidentialité). Anti-spam : champ piège (honeypot) + limitation des envois. Pas de CRM complet.
+
 Décisions ouvertes :
 - Authentification : garder NextAuth v4 (stable, plus d'évolution) ou passer à Better Auth (moderne, bonne intégration Prisma).
 - Stockage des images de la bibliothèque média (disque local, Vercel Blob, S3…).
 - Source des statistiques du dashboard (données internes uniquement, ou outil d'analytics).
-- Protection anti-spam du formulaire de contact (rate limiting, honeypot, captcha).
 - Bandeau de consentement cookies (RGPD), nécessaire seulement si un outil d'analytics ou de suivi est ajouté.
 
 Nettoyage des dépendances :

@@ -18,15 +18,79 @@ export const demoAdmin = { name: "Administratrice", email: "admin@exemple.fr" }
 export const demoContacts: {
   id: string
   name: string
+  email: string
+  phone?: string
   subject: string
+  message: string
   createdAt: string
   status: ContactStatus
 }[] = [
-  { id: "c1", name: "Camille R.", subject: "Prendre rendez-vous", createdAt: fromNow(0, 8), status: "NEW" },
-  { id: "c2", name: "Sophie M.", subject: "Soin énergétique", createdAt: fromNow(-1, 15), status: "NEW" },
-  { id: "c3", name: "Julie B.", subject: "Accompagnement personnalisé", createdAt: fromNow(-2, 10), status: "NEW" },
-  { id: "c4", name: "Nadia K.", subject: "Autre demande", createdAt: fromNow(-3, 17), status: "IN_PROGRESS" },
-  { id: "c5", name: "Laura P.", subject: "Prendre rendez-vous", createdAt: fromNow(-5, 11), status: "DONE" },
+  {
+    id: "c1",
+    name: "Camille R.",
+    email: "camille@exemple.fr",
+    phone: "06 00 00 00 01",
+    subject: "Prendre rendez-vous",
+    message: "Bonjour, je souhaiterais réserver une première séance la semaine prochaine, idéalement en fin de journée. Quelles sont vos disponibilités ? Merci !",
+    createdAt: fromNow(0, 8),
+    status: "NEW",
+  },
+  {
+    id: "c2",
+    name: "Sophie M.",
+    email: "sophie@exemple.fr",
+    subject: "Soin énergétique",
+    message: "Bonjour, une amie m'a parlé de vos soins énergétiques. Comment se déroule une séance et combien de temps dure-t-elle ?",
+    createdAt: fromNow(-1, 15),
+    status: "NEW",
+  },
+  {
+    id: "c3",
+    name: "Julie B.",
+    email: "julie@exemple.fr",
+    phone: "06 00 00 00 03",
+    subject: "Accompagnement personnalisé",
+    message: "Bonjour, je traverse une période difficile et je cherche un accompagnement sur plusieurs séances. Proposez-vous un suivi ?",
+    createdAt: fromNow(-2, 10),
+    status: "NEW",
+  },
+  {
+    id: "c4",
+    name: "Nadia K.",
+    email: "nadia@exemple.fr",
+    subject: "Autre demande",
+    message: "Bonjour, proposez-vous des cartes cadeaux ? Je souhaiterais offrir une séance à ma mère pour son anniversaire.",
+    createdAt: fromNow(-3, 17),
+    status: "IN_PROGRESS",
+  },
+  {
+    id: "c5",
+    name: "Laura P.",
+    email: "laura@exemple.fr",
+    subject: "Prendre rendez-vous",
+    message: "Bonjour, est-il possible de décaler mon rendez-vous de jeudi à vendredi ? Merci beaucoup.",
+    createdAt: fromNow(-5, 11),
+    status: "DONE",
+  },
+  {
+    id: "c6",
+    name: "Emma D.",
+    email: "emma@exemple.fr",
+    phone: "06 00 00 00 06",
+    subject: "Soin énergétique",
+    message: "Bonjour, les séances peuvent-elles se faire à distance ? J'habite assez loin de Cholet.",
+    createdAt: fromNow(-9, 14),
+    status: "DONE",
+  },
+  {
+    id: "c7",
+    name: "Pauline G.",
+    email: "pauline@exemple.fr",
+    subject: "Autre demande",
+    message: "Bonjour, je voulais simplement vous remercier pour la séance de la semaine dernière, je me sens beaucoup plus apaisée.",
+    createdAt: fromNow(-15, 9),
+    status: "DONE",
+  },
 ]
 
 export const demoPosts: {

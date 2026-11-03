@@ -24,6 +24,6 @@ export const adminNav: AdminNavItem[] = [
   { label: "Articles", href: "/admin/articles", icon: FileText, available: false },
   { label: "Catégories et tags", href: "/admin/categories", icon: Tags, available: false },
   { label: "Médias", href: "/admin/medias", icon: Image, available: false },
-  { label: "Contacts", href: "/admin/contacts", icon: Mail, available: false, badge: "newContacts" },
+  { label: "Contacts", href: "/admin/contacts", icon: Mail, available: true, badge: "newContacts" },
   { label: "Paramètres", href: "/admin/parametres", icon: Settings, available: false },
 ]

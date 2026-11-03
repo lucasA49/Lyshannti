@@ -1,7 +1,8 @@
+import Link from "next/link"
 import { AlertTriangle, CalendarClock, Eye, FilePen, FileText, Mail, PenLine } from "lucide-react"
 import { cn } from "cn"
 
-import { EmptyState, Panel, SoonLink, StatusBadge } from "@/components/admin/dashboard/widgets"
+import { EmptyState, Panel, StatusBadge } from "@/components/admin/dashboard/widgets"
 import { seoIssueLabels, type DashboardData } from "@/lib/admin/dashboard"
 import { formatDayMonth, formatDayMonthTime, formatWeekday, parisDayKey } from "@/lib/admin/format"
 import { frenchTypo } from "@/lib/format"
@@ -65,26 +66,39 @@ export function StatCards({ stats }: { stats: DashboardData["stats"] }) {
 
 export function RecentContacts({ contacts }: { contacts: DashboardData["recentContacts"] }) {
   return (
-    <Panel id="recent-contacts" title="À traiter" action={<SoonLink>Voir toutes les demandes</SoonLink>}>
+    <Panel
+      id="recent-contacts"
+      title="À traiter"
+      action={
+        <Link href="/admin/contacts" className="rounded-sm text-sm font-medium text-plum underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">
+          Voir toutes les demandes
+        </Link>
+      }
+    >
       {contacts.length === 0 ? (
         <EmptyState>Aucune demande de contact pour le moment.</EmptyState>
       ) : (
         <ul className="divide-y divide-plum/10">
           {contacts.map((contact) => (
-            <li key={contact.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-              <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blush font-heading text-plum">
-                {contact.name.charAt(0)}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-plum">{contact.name}</p>
-                <p className="truncate text-sm text-plum/70">{contact.subject}</p>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <StatusBadge kind="contact" status={contact.status} />
-                <time dateTime={contact.createdAt} className="text-xs text-plum/65">
-                  {formatDayMonthTime(contact.createdAt)}
-                </time>
-              </div>
+            <li key={contact.id} className="py-1.5 first:pt-0 last:pb-0">
+              <Link
+                href={`/admin/contacts/${contact.id}`}
+                className="-mx-2 flex items-center gap-3 rounded-2xl px-2 py-1.5 outline-none hover:bg-[#faf3f1] focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blush font-heading text-plum">
+                  {contact.name.charAt(0)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-plum">{contact.name}</p>
+                  <p className="truncate text-sm text-plum/70">{contact.subject}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <StatusBadge kind="contact" status={contact.status} />
+                  <time dateTime={contact.createdAt} className="text-xs text-plum/65">
+                    {formatDayMonthTime(contact.createdAt)}
+                  </time>
+                </div>
+              </Link>
             </li>
           ))}
         </ul>

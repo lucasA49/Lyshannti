@@ -66,15 +66,6 @@ export function StatusBadge(
   )
 }
 
-/** Lien « Voir tout » d'un bloc (désactivé tant que la page n'existe pas). */
-export function SoonLink({ children }: { children: React.ReactNode }) {
-  return (
-    <span aria-disabled="true" title="Bientôt disponible" className="cursor-not-allowed text-sm font-medium text-plum/50">
-      {children}
-    </span>
-  )
-}
-
 export function EmptyState({ children }: { children: React.ReactNode }) {
   return <p className="rounded-2xl bg-blush/30 px-4 py-6 text-center text-sm text-plum/75">{children}</p>
 }
