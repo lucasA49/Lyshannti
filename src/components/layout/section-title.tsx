@@ -1,4 +1,4 @@
-import { cn } from "cn"
+ import { cn } from "cn"
 
 // Titre de section centré entre deux traits dorés.
 function SectionTitle({
