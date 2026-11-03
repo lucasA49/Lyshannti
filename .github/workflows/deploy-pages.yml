@@ -1,10 +1,10 @@
-# Déploie une démo statique du site sur GitHub Pages à chaque push sur main.
+# Démo statique du site sur GitHub Pages (données de démonstration, sans base).
+# FIGÉE depuis le 2026-11-03 : le backend (connexion admin, écriture en base)
+# demande un serveur. Lancement manuel uniquement : onglet Actions → « Run workflow ».
 # Prérequis (une seule fois) : Settings → Pages → Source : « GitHub Actions ».
 name: Déploiement GitHub Pages
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

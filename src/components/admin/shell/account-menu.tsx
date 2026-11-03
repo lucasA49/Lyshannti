@@ -1,5 +1,6 @@
-import Link from "next/link"
-import { ChevronDown, LogOut, UserRound } from "lucide-react"
+import { ChevronDown, UserRound } from "lucide-react"
+
+import { LogoutButton } from "@/components/admin/shell/logout-button"
 
 // Menu du compte en Popover natif (attribut `popover`) : ouverture, fermeture
 // à l'Échap ou au clic à l'extérieur gérées par le navigateur, sans JavaScript.
@@ -43,14 +44,7 @@ function AccountMenu({ name, email }: { name: string; email: string }) {
             </span>
           </li>
           <li>
-            {/* Sans session pour l'instant : retour à l'écran de connexion. */}
-            <Link
-              href="/admin/connexion"
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm outline-none hover:bg-blush focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
-              <LogOut aria-hidden="true" className="size-4" />
-              Se déconnecter
-            </Link>
+            <LogoutButton />
           </li>
         </ul>
       </div>

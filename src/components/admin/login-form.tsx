@@ -2,14 +2,15 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowRight, Mail } from "lucide-react"
+import { AlertCircle, ArrowRight, Mail } from "lucide-react"
 
 import {
   FieldError,
   FieldIcon,
-  NotConnectedNotice,
   PasswordInput,
   authFieldClass,
   authLinkClass,
@@ -17,8 +18,15 @@ import {
 } from "@/components/admin/auth-fields"
 import { loginSchema, type LoginInput } from "@/lib/validations/auth"
 
+// Messages volontairement génériques : on ne dit jamais si l'e-mail existe.
+const errorMessages: Record<string, string> = {
+  TooManyAttempts: "Trop de tentatives. Pour votre sécurité, réessayez dans 15 minutes.",
+  default: "E-mail ou mot de passe incorrect.",
+}
+
 function LoginForm() {
-  const [submitted, setSubmitted] = useState(false)
+  const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
@@ -29,9 +37,22 @@ function LoginForm() {
     defaultValues: { email: "", password: "", remember: false },
   })
 
-  // TODO backend : authentification côté serveur (hash du mot de passe,
-  // limitation des tentatives, session sécurisée) — voir CLAUDE.md, section Sécurité.
-  const onSubmit = () => setSubmitted(true)
+  // Vérification côté serveur par NextAuth (src/lib/auth/options.ts).
+  const onSubmit = async (values: LoginInput) => {
+    setError(null)
+    const result = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      remember: String(values.remember),
+      redirect: false,
+    })
+    if (!result || result.error) {
+      setError(errorMessages[result?.error ?? ""] ?? errorMessages.default)
+      return
+    }
+    router.replace("/admin")
+    router.refresh()
+  }
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -80,14 +101,15 @@ function LoginForm() {
       </div>
 
       <button type="submit" disabled={isSubmitting} className={authSubmitClass}>
-        Se connecter
+        {isSubmitting ? "Connexion…" : "Se connecter"}
         <ArrowRight />
       </button>
 
-      {submitted && (
-        <NotConnectedNotice>
-          La connexion n&apos;est pas encore activée : l&apos;authentification sera branchée avec le backend.
-        </NotConnectedNotice>
+      {error && (
+        <p role="alert" className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-white/70 px-4 py-3 text-sm text-plum">
+          <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
+          {error}
+        </p>
       )}
     </form>
   )

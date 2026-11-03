@@ -7,20 +7,13 @@ import { ContactActions } from "@/components/admin/contacts/contact-actions";
 import { StatusBadge } from "@/components/admin/dashboard/widgets";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { buttonVariants } from "@/components/ui/button-variants";
-import { contactDeletionDate, getContact, getContacts } from "@/lib/admin/contacts";
+import { contactDeletionDate, getContact } from "@/lib/admin/contacts";
 import { formatLongDate } from "@/lib/admin/format";
 import { frenchTypo } from "@/lib/format";
 
 type Props = { params: Promise<{ id: string }> };
 
-// Démo statique : une page par demande de démonstration. Avec la base, la page
-// sera rendue à la demande (données privées, jamais mises en cache publiquement).
-export const dynamicParams = false;
-
-export async function generateStaticParams() {
-  return (await getContacts()).map((contact) => ({ id: contact.id }));
-}
-
+// Rendue à la demande (données privées, toujours à jour, réservées à l'admin).
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const contact = await getContact((await params).id);
   return { title: contact ? `Demande de ${contact.name}` : "Demande introuvable" };

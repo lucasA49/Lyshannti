@@ -16,49 +16,33 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── Authentification ────────────────────────────────────────────────────────
-// ⚠️ Provisoire tant que la bibliothèque d'authentification n'est pas choisie
-// (Better Auth ou NextAuth v4) : elle pourra imposer ses propres tables.
+// ─── Authentification (NextAuth v4, sessions JWT) ────────────────────────────
+// Le cookie de session est un JWT chiffré par NextAuth : pas de table sessions.
+// `sessionVersion` est copié dans le JWT et revérifié à chaque requête :
+// l'incrémenter (changement de mot de passe, « déconnecter partout ») invalide
+// toutes les sessions ouvertes.
 
 enum Role {
   ADMIN
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  name         String
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String
   /// Hash bcrypt (le sel est inclus dans le hash). Jamais de mot de passe en clair.
-  passwordHash String
-  role         Role      @default(ADMIN)
-  lastLoginAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  passwordHash   String
+  role           Role      @default(ADMIN)
+  sessionVersion Int       @default(0)
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  sessions            Session[]
   passwordResetTokens PasswordResetToken[]
   articles            Article[]
   media               Media[]
 
   @@map("users")
-}
-
-/// Sessions en base : révocables (déconnexion à distance, changement de mot de passe).
-model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  /// Empreinte (SHA-256) du jeton du cookie : le jeton lui-même n'est jamais stocké.
-  tokenHash String   @unique
-  expiresAt DateTime
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("sessions")
 }
 
 /// Liens « mot de passe oublié » : usage unique, valables 30 minutes.
