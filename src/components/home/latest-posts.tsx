@@ -2,7 +2,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { cn } from "cn"
 
-import { buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button-variants"
 import { PostCard } from "@/components/blog/post-card"
 import { Container } from "@/components/layout/container"
 import { SectionTitle } from "@/components/layout/section-title"

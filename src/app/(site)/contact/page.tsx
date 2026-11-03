@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { pageMetadata } from "@/lib/seo";
+
 import { ContactForm } from "@/components/contact/contact-form";
 import { ContactHero } from "@/components/contact/contact-hero";
 import { ContactInfo } from "@/components/contact/contact-info";
@@ -7,11 +9,12 @@ import { StaticMap } from "@/components/contact/static-map";
 import { LotusIcon } from "@/components/brand/lotus-icon";
 import { Container } from "@/components/layout/container";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contact",
   description:
     "Une question, un besoin ou une demande de rendez-vous ? Contactez Lyshannti par téléphone, par email ou via le formulaire.",
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

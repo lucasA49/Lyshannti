@@ -1,5 +1,14 @@
+// URL publique du site (sans « / » final) : sert aux URL canoniques, à Open Graph
+// et au sitemap. À définir par environnement (voir .env.example).
+const url = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "")
+
 export const siteConfig = {
   name: "Lyshannti",
+  url,
+  // Indexation par les moteurs de recherche : désactivée tant que le site n'est
+  // pas en production sur son domaine définitif (la démo ne doit pas être indexée).
+  indexable: process.env.NEXT_PUBLIC_SITE_INDEXABLE === "true",
+  locale: "fr_FR",
   tagline: "L'élégance du bien-être",
   description:
     "Des prestations uniques et personnalisées pour révéler votre beauté naturelle.",

@@ -104,14 +104,22 @@ Code propre, documenté, maintenable et évolutif.
 - Les infos de l'activité (ville ou zone, adresse si cabinet, téléphone, horaires) : pour le titre SEO de l'accueil et les données structurées Schema.org.
 - Un visuel de partage Open Graph (1200×630) et un favicon / logo en SVG ou PNG.
 
-## SEO / SEA : reste à faire (audit de l'accueil)
-- `metadataBase`, canonical, Open Graph et Twitter card sur toutes les pages (bloqué par le nom de domaine).
-- `src/app/sitemap.ts` et `src/app/robots.ts` (bloqué par le nom de domaine).
-- Données structurées JSON-LD `BeautySalon` / `LocalBusiness` (bloqué par les infos de l'activité).
-- Titre SEO de l'accueil plus descriptif (ex. « Lyshannti – Soins visage, corps et accompagnement bien-être à <ville> »).
-- Favicon et icônes à la marque (actuellement le favicon par défaut de Next).
+## SEO / SEA
+En place :
+- `siteConfig.url` (`NEXT_PUBLIC_SITE_URL`) et `siteConfig.indexable` (`NEXT_PUBLIC_SITE_INDEXABLE`), voir `.env.example`. La démo GitHub Pages est en `noindex` + `robots.txt` `Disallow: /`.
+- Chaque page utilise `pageMetadata()` (`src/lib/seo.ts`) : titre, description, canonical, Open Graph et Twitter complets. Image de partage : `public/og-image.png`.
+- `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg`, `public/apple-touch-icon.png`, JSON-LD `WebSite` + `Organization` sur l'accueil.
+- `trailingSlash: true` partout (une seule URL par page).
+- En-têtes de sécurité dans `next.config.ts` (hors GitHub Pages). CSP à ajouter avec le backend.
+- Performance : pas de Base UI dans le JS des pages publiques (`buttonVariants` dans `button-variants.ts`, menu mobile en `<dialog>` natif, `<input>` natif). Ne pas importer `@/components/ui/button` dans les pages publiques.
+
+Reste à faire :
+- Passer `NEXT_PUBLIC_SITE_INDEXABLE=true` et `NEXT_PUBLIC_SITE_URL` sur le domaine définitif, puis déclarer le sitemap dans Google Search Console.
+- JSON-LD `LocalBusiness` (adresse, téléphone, horaires) quand les vraies coordonnées seront connues.
+- Textes de l'accueil à aligner sur l'activité réelle (soins énergétiques) : titre SEO, description du site, sections.
+- Contenu des pages légales (actuellement vides).
 - SEA : suivi des conversions (Google Ads / GA4) seulement avec un bandeau de consentement et le Consent Mode v2.
-- Photos : `next/image` avec `priority` sur l'image du Hero (LCP), `sizes` adaptés, formats AVIF/WebP.
+- Photos : `next/image` avec `preload`/`fetchPriority` sur l'image principale (LCP), images en WebP.
 
 ## Ordre de travail
 Le projet est **au tout début de son développement** : le site n'est pas encore en ligne. Les points en attente (domaine, infos de l'activité, photos, analytics) seront traités plus tard. Ne pas bloquer l'avancement dessus ni les redemander à chaque étape.

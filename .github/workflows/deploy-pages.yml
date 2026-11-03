@@ -33,6 +33,9 @@ jobs:
         run: npm run build
         env:
           GITHUB_PAGES: "true"
+          NEXT_PUBLIC_SITE_URL: https://lucasa49.github.io/Lyshannti
+          # Démo avec contenus provisoires : jamais indexée par Google.
+          NEXT_PUBLIC_SITE_INDEXABLE: "false"
           NEXT_TELEMETRY_DISABLED: "1"
 
       # Empêche Jekyll d'ignorer le dossier _next.

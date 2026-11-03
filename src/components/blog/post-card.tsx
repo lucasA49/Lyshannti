@@ -2,7 +2,7 @@ import Link from "next/link"
 import { ArrowRight, CalendarDays } from "lucide-react"
 
 import { ImagePlaceholder } from "@/components/ui/image-placeholder"
-import type { PostPreview } from "@/content/posts.placeholder"
+import { postHref, type PostPreview } from "@/content/posts.placeholder"
 
 const dateFormat = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
@@ -25,7 +25,7 @@ function PostCard({ post }: { post: PostPreview }) {
       <div className="flex flex-1 flex-col gap-4 p-5 pt-6">
         <h3 className="flex-1 font-heading text-xl font-semibold text-plum">
           <Link
-            href={`/blog/${post.slug}`}
+            href={postHref(post)}
             className="outline-none after:absolute after:inset-0"
           >
             {post.title}

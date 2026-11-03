@@ -1,4 +1,5 @@
 import Image, { type StaticImageData } from "next/image"
+import { cn } from "cn"
 
 import { ImagePlaceholder } from "@/components/ui/image-placeholder"
 import { LotusIcon } from "@/components/brand/lotus-icon"
@@ -14,6 +15,7 @@ function SplitHero({
   description,
   image,
   imageLabel,
+  titleClassName,
 }: {
   id: string
   eyebrow: string
@@ -21,6 +23,8 @@ function SplitHero({
   description: string
   image?: StaticImageData
   imageLabel: string
+  /** Pour ajuster la taille d'un titre long. */
+  titleClassName?: string
 }) {
   return (
     <section
@@ -43,7 +47,10 @@ function SplitHero({
           </p>
           <h1
             id={id}
-            className="mt-2 font-heading text-4xl leading-tight font-semibold text-plum italic sm:text-5xl lg:text-[2.75rem] xl:text-[2.85rem] 2xl:text-[3.25rem]"
+            className={cn(
+              "mt-2 font-heading text-4xl leading-tight font-semibold text-plum italic sm:text-5xl lg:text-[2.75rem] xl:text-[2.85rem] 2xl:text-[3.25rem]",
+              titleClassName
+            )}
           >
             {title}
           </h1>

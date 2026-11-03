@@ -136,6 +136,41 @@
   --ring: #f4d08a;
 }
 
+/* Menu mobile (<dialog> natif) : panneau à droite qui glisse à l'ouverture. */
+.mobile-nav {
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(20rem, 85vw);
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  padding: 0;
+  translate: 100% 0;
+  transition:
+    translate 0.3s ease,
+    overlay 0.3s allow-discrete,
+    display 0.3s allow-discrete;
+}
+
+.mobile-nav[open] {
+  translate: 0 0;
+}
+
+@starting-style {
+  .mobile-nav[open] {
+    translate: 100% 0;
+  }
+}
+
+.mobile-nav::backdrop {
+  background: rgb(33 19 37 / 0.6);
+}
+
+/* Pas de défilement de la page derrière le menu ouvert. */
+html:has(.mobile-nav[open]) {
+  overflow: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

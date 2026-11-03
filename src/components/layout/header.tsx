@@ -2,7 +2,7 @@ import Link from "next/link"
 import { CalendarDays } from "lucide-react"
 import { cn } from "cn"
 
-import { buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button-variants"
 import { Logo } from "@/components/brand/logo"
 import { Container } from "@/components/layout/container"
 import { MobileNav } from "@/components/layout/mobile-nav"

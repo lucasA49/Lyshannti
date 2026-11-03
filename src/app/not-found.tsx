@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "cn";
 
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { PageHero } from "@/components/layout/page-hero";

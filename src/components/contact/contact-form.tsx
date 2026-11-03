@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { ChevronDown, Info, Lock, Send } from "lucide-react"
 import { cn } from "cn"
 
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button-variants"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -184,14 +184,17 @@ function ContactForm({ className }: { className?: string }) {
         </Field>
 
         <div className="sm:col-span-2">
-          <Button
+          <button
             type="submit"
             disabled={isSubmitting}
-            className="h-13 w-full gap-3 rounded-xl bg-linear-to-r from-plum to-[color-mix(in_oklch,#211325_85%,#eed8d4)] text-base font-semibold text-blush shadow-md shadow-plum/20 hover:opacity-90 [&_svg:not([class*='size-'])]:size-5"
+            className={cn(
+              buttonVariants(),
+              "h-13 w-full gap-3 rounded-xl bg-linear-to-r from-plum to-[color-mix(in_oklch,#211325_85%,#eed8d4)] text-base font-semibold text-blush shadow-md shadow-plum/20 hover:opacity-90 [&_svg:not([class*='size-'])]:size-5"
+            )}
           >
             <Send />
             Envoyer ma demande
-          </Button>
+          </button>
 
           {submitted && (
             <p

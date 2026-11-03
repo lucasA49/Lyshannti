@@ -1,10 +1,10 @@
 import * as React from "react"
-import { Input as InputPrimitive } from "@base-ui/react/input"
 import { cn } from "cn"
 
+// <input> natif (plutôt que Base UI) : même rendu, sans JavaScript en plus.
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
-    <InputPrimitive
+    <input
       type={type}
       data-slot="input"
       className={cn(
