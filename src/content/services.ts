@@ -10,13 +10,13 @@ export type Service = {
 export const services: Service[] = [
   {
     slug: "soin-du-visage",
-    title: "Soin du visage",
+    title: "Soin du énergetique et Médiomique ",
     excerpt: "Un soin sur-mesure pour une peau éclatante et revitalisée.",
     imageAlt: "Femme détendue avec un masque de soin sur le visage",
   },
   {
     slug: "soin-du-corps",
-    title: "Soin du corps",
+    title: "Guidance",
     excerpt:
       "Une parenthèse de détente pour relâcher les tensions et se ressourcer.",
     imageAlt: "Massage relaxant du dos",

@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button-variants"
 import { ImagePlaceholder } from "@/components/ui/image-placeholder"
 import { LotusIcon } from "@/components/brand/lotus-icon"
 import { Container } from "@/components/layout/container"
+import { Logo } from "@/"
 
 const imageLabel = "Lys rose, bougie et huile de soin sur des serviettes"
 
@@ -33,13 +34,11 @@ function Hero() {
             id="hero-title"
             className="font-heading text-4xl leading-[1.1] font-semibold text-plum italic sm:text-5xl xl:text-6xl"
           >
-            L&apos;élégance{" "}
+            Je t'acompagne{" "}
             <br />
-            dans chaque détail
-          </h1>
+vers ton alignement <br /> et ta lumiere          </h1>
           <p className="mt-5 max-w-md text-lg text-plum/80">
-            Des prestations uniques et personnalisées pour révéler votre beauté
-            naturelle.
+            Des prestations uniques et personnalisées pour révéler votre beauté.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
